@@ -23,7 +23,7 @@ export default function LoginPage() {
     // Simulate API call
     setTimeout(() => {
       // Mock validation
-      if (email === 'admin@eventkaro.com' && password === 'admin123') {
+      if (email === 'admin@eventkaro.com' && password === 'Admin@2026') {
         login('mock-jwt-token-superadmin', {
           id: '1',
           email: 'admin@eventkaro.com',

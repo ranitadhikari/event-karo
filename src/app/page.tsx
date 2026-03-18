@@ -205,7 +205,7 @@ export default function LandingPage() {
                 <h2 className="text-4xl font-black tracking-tighter uppercase">Trending Events</h2>
                 <div className="h-1 w-20 bg-primary rounded-full" />
               </div>
-              <Link href="/student/dashboard">
+              <Link href="/events">
                 <Button variant="ghost" className="text-slate-400 hover:text-white uppercase tracking-widest font-bold text-xs flex items-center gap-2">
                   View All <ArrowRight className="h-4 w-4" />
                 </Button>

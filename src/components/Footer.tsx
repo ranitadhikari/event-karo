@@ -31,7 +31,7 @@ export const Footer: React.FC = () => {
           <div className="md:col-span-2">
             <h3 className="text-white font-bold mb-6 text-sm uppercase tracking-widest">Explore</h3>
             <ul className="space-y-4 text-sm text-slate-400">
-              <li><Link href="/student/dashboard" className="hover:text-primary transition-colors">All Events</Link></li>
+              <li><Link href="/events" className="hover:text-primary transition-colors">All Events</Link></li>
               <li><Link href="/colleges" className="hover:text-primary transition-colors">Colleges</Link></li>
               <li><Link href="#" className="hover:text-primary transition-colors">Trending</Link></li>
               <li><Link href="#" className="hover:text-primary transition-colors">Categories</Link></li>

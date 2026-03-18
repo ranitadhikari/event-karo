@@ -143,7 +143,7 @@ export default function MyRegisteredEvents() {
                 <p className="text-2xl font-bold text-slate-900">No registrations yet</p>
                 <p className="text-slate-500 font-medium mt-2">You haven't registered for any events yet. Start exploring now!</p>
               </div>
-              <Link href="/student/dashboard" className="inline-block">
+              <Link href="/events" className="inline-block">
                 <Button className="h-14 px-10 rounded-2xl font-bold shadow-lg shadow-primary/20">
                   Browse Events <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>

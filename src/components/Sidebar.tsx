@@ -45,7 +45,7 @@ export const Sidebar: React.FC = () => {
         ];
       case 'STUDENT':
         return [
-          { label: 'Browse Events', href: '/student/dashboard', icon: Calendar },
+          { label: 'Browse Events', href: '/events', icon: Calendar },
           { label: 'My Registered Events', href: '/student/my-events', icon: LayoutDashboard },
           { label: 'Profile', href: '/student/profile', icon: UserCircle },
         ];

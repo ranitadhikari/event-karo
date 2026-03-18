@@ -21,7 +21,7 @@ export const Navbar: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { label: 'Explore Events', href: '/student/dashboard' },
+    { label: 'Explore Events', href: '/events' },
     { label: 'Colleges', href: '/colleges' },
   ];
 
