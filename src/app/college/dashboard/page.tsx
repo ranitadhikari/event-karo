@@ -1,217 +1,286 @@
 'use client';
 
-import React, { useState } from 'react';
-import { DashboardLayout } from '@/components/DashboardLayout';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import React from 'react';
+import { CollegeLayout } from '@/components/college/CollegeLayout';
+import { CollegeStatCard } from '@/components/college/CollegeStatCard';
 import { 
-  Building2, 
-  Globe, 
-  MapPin, 
-  Phone, 
-  Info, 
-  Upload, 
-  Save, 
-  Loader2,
-  ExternalLink,
-  GraduationCap
+  Calendar, 
+  Users, 
+  Eye, 
+  Trophy,
+  TrendingUp,
+  Zap
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { 
+  LineChart, 
+  Line, 
+  BarChart, 
+  Bar, 
+  PieChart, 
+  Pie, 
+  Cell, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Legend
+} from 'recharts';
+import { motion } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
+
+// Mock data for charts
+const registrationData = [
+  { name: 'Mon', registrations: 12 },
+  { name: 'Tue', registrations: 19 },
+  { name: 'Wed', registrations: 15 },
+  { name: 'Thu', registrations: 22 },
+  { name: 'Fri', registrations: 30 },
+  { name: 'Sat', registrations: 25 },
+  { name: 'Sun', registrations: 18 },
+];
+
+const viewData = [
+  { name: 'Hackathon', views: 450 },
+  { name: 'Workshop', views: 320 },
+  { name: 'Seminar', views: 280 },
+  { name: 'Cultural', views: 560 },
+  { name: 'Sports', views: 390 },
+];
+
+const categoryData = [
+  { name: 'Technical', value: 40 },
+  { name: 'Cultural', value: 30 },
+  { name: 'Sports', value: 20 },
+  { name: 'Other', value: 10 },
+];
+
+const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444'];
 
 export default function CollegeDashboard() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [profile, setProfile] = useState({
-    name: 'Delhi Technological University',
-    email: 'admin@dtu.ac.in',
-    website: 'https://www.dtu.ac.in',
-    address: 'Shahbad Daulatpur, Main Bawana Road, Delhi, 110042',
-    phone: '011-27871018',
-    about: 'Delhi Technological University (DTU), formerly known as Delhi College of Engineering (DCE), is a premier government university located in New Delhi, India. Established in 1941, it is one of the oldest and most prestigious engineering colleges in the country.',
-    logo: ''
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Simulate API: PATCH /api/college/profile
-    setTimeout(() => {
-      console.log('Updating profile:', profile);
-      setIsLoading(false);
-      toast.success('College profile updated successfully!');
-    }, 1500);
-  };
-
   return (
-    <DashboardLayout allowedRoles={['COLLEGE_ADMIN']}>
-      <div className="space-y-8">
+    <CollegeLayout>
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">College Profile</h1>
-          <p className="text-slate-500 font-medium mt-1">Manage your college's public profile and contact information.</p>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Dashboard Overview</h2>
+          <p className="text-gray-500 font-medium mt-1">Welcome back! Here's what's happening with your events.</p>
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Form */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card className="border-none shadow-sm rounded-3xl overflow-hidden">
-              <CardHeader className="bg-white border-b border-slate-100 py-6 px-8">
-                <CardTitle className="text-xl font-bold flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-primary" />
-                  Edit College Information
-                </CardTitle>
-                <CardDescription>This information will be visible to students and other admins.</CardDescription>
-              </CardHeader>
-              <form onSubmit={handleSubmit}>
-                <CardContent className="p-8 space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-slate-700 font-bold">College Name</Label>
-                      <Input 
-                        id="name" 
-                        name="name" 
-                        value={profile.name} 
-                        onChange={handleChange} 
-                        className="h-12 rounded-xl bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-primary/20 transition-all"
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-slate-700 font-bold">Admin Email</Label>
-                      <Input 
-                        id="email" 
-                        name="email" 
-                        type="email" 
-                        value={profile.email} 
-                        readOnly 
-                        className="h-12 rounded-xl bg-slate-100/50 border-slate-200 text-slate-500 cursor-not-allowed font-medium" 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="website" className="text-slate-700 font-bold">Website URL</Label>
-                      <div className="relative group">
-                        <Globe className="absolute left-3 top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-                        <Input 
-                          id="website" 
-                          name="website" 
-                          value={profile.website} 
-                          onChange={handleChange} 
-                          className="pl-10 h-12 rounded-xl bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-primary/20 transition-all"
-                          placeholder="https://www.college.edu"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-slate-700 font-bold">Phone Number</Label>
-                      <div className="relative group">
-                        <Phone className="absolute left-3 top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-                        <Input 
-                          id="phone" 
-                          name="phone" 
-                          value={profile.phone} 
-                          onChange={handleChange} 
-                          className="pl-10 h-12 rounded-xl bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-primary/20 transition-all"
-                          placeholder="011-23456789"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="address" className="text-slate-700 font-bold">Address</Label>
-                    <div className="relative group">
-                      <MapPin className="absolute left-3 top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-                      <Input 
-                        id="address" 
-                        name="address" 
-                        value={profile.address} 
-                        onChange={handleChange} 
-                        className="pl-10 h-12 rounded-xl bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-primary/20 transition-all"
-                        placeholder="Complete campus address"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="about" className="text-slate-700 font-bold">About College</Label>
-                    <div className="relative group">
-                      <Info className="absolute left-3 top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-                      <textarea 
-                        id="about" 
-                        name="about" 
-                        value={profile.about} 
-                        onChange={handleChange} 
-                        rows={6}
-                        className="w-full pl-10 pt-3 rounded-xl bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-primary/20 focus:border-primary transition-all resize-none text-sm outline-none"
-                        placeholder="Write something about your college's history, achievements, and culture..."
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter className="bg-slate-50/50 py-6 px-8 flex justify-end">
-                  <Button type="submit" className="h-12 px-8 rounded-xl font-bold shadow-lg shadow-primary/20" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Save className="mr-2 h-5 w-5" />}
-                    Save Changes
-                  </Button>
-                </CardFooter>
-              </form>
-            </Card>
-          </div>
-
-          {/* Right Column: Preview & Logo */}
-          <div className="space-y-6">
-            <Card className="border-none shadow-sm rounded-3xl overflow-hidden p-8 text-center bg-white">
-              <div className="flex flex-col items-center">
-                <div className="h-32 w-32 rounded-[2rem] bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 group hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer mb-6 relative overflow-hidden">
-                  {profile.logo ? (
-                    <img src={profile.logo} alt="Logo" className="h-full w-full object-contain p-4" />
-                  ) : (
-                    <>
-                      <Upload className="h-8 w-8 mb-2 group-hover:scale-110 transition-transform" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Upload Logo</span>
-                    </>
-                  )}
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 line-clamp-1">{profile.name}</h3>
-                <p className="text-sm text-slate-500 font-medium mb-6">DTU, Delhi</p>
-                <div className="flex flex-wrap justify-center gap-2 mb-8">
-                  <div className="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                    <Globe className="h-5 w-5" />
-                  </div>
-                  <div className="h-10 w-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center border border-green-100">
-                    <Phone className="h-5 w-5" />
-                  </div>
-                  <div className="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
-                    <MapPin className="h-5 w-5" />
-                  </div>
-                </div>
-                <Link href={`/college/c1`} target="_blank">
-                  <Button variant="outline" className="w-full h-12 rounded-xl font-bold border-slate-200 hover:bg-slate-50 transition-all">
-                    View Public Profile
-                    <ExternalLink className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
-            </Card>
-
-            <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-primary text-white p-8 relative">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
-              <GraduationCap className="h-10 w-10 mb-4 opacity-50" />
-              <h4 className="text-xl font-bold mb-2">Pro Tip!</h4>
-              <p className="text-primary-foreground/90 text-sm leading-relaxed font-medium">
-                Keep your profile updated to help students find and trust your college. A complete profile increases event participation by 40%.
-              </p>
-            </Card>
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl border border-blue-100 flex items-center gap-2 font-bold text-sm shadow-sm">
+            <TrendingUp className="h-4 w-4" />
+            Performance: +12% this week
           </div>
         </div>
       </div>
-    </DashboardLayout>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <CollegeStatCard 
+          label="Total Events" 
+          value="24" 
+          icon={Calendar} 
+          trend={{ value: 8, isUp: true }}
+          color="blue"
+        />
+        <CollegeStatCard 
+          label="Upcoming Events" 
+          value="6" 
+          icon={Zap} 
+          description="Next event in 2 days"
+          color="amber"
+        />
+        <CollegeStatCard 
+          label="Total Registrations" 
+          value="1,284" 
+          icon={Users} 
+          trend={{ value: 15, isUp: true }}
+          color="emerald"
+        />
+        <CollegeStatCard 
+          label="Page Views" 
+          value="12.5k" 
+          icon={Eye} 
+          trend={{ value: 4, isUp: true }}
+          color="indigo"
+        />
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Registration Chart */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-lg font-bold text-gray-900">Registration Trends</h3>
+            <Badge variant="outline" className="text-gray-500 font-bold uppercase tracking-wider text-[10px]">Weekly</Badge>
+          </div>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={registrationData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                  dy={10}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#fff', 
+                    border: '1px solid #e2e8f0', 
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                  }}
+                  cursor={{ stroke: '#2563eb', strokeWidth: 2 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="registrations" 
+                  stroke="#2563eb" 
+                  strokeWidth={3} 
+                  dot={{ fill: '#2563eb', strokeWidth: 2, r: 4, stroke: '#fff' }}
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+
+        {/* View Chart */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-lg font-bold text-gray-900">Views per Event</h3>
+            <Badge variant="outline" className="text-gray-500 font-bold uppercase tracking-wider text-[10px]">Top 5 Events</Badge>
+          </div>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={viewData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                  dy={10}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                />
+                <Tooltip 
+                  cursor={{ fill: '#f8fafc' }}
+                  contentStyle={{ 
+                    backgroundColor: '#fff', 
+                    border: '1px solid #e2e8f0', 
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                  }}
+                />
+                <Bar 
+                  dataKey="views" 
+                  fill="#2563eb" 
+                  radius={[6, 6, 0, 0]} 
+                  barSize={32}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Bottom Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-8">
+        {/* Category Pie Chart */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm lg:col-span-1"
+        >
+          <h3 className="text-lg font-bold text-gray-900 mb-6">Event Categories</h3>
+          <div className="h-[250px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={8}
+                  dataKey="value"
+                >
+                  {categoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#fff', 
+                    border: '1px solid #e2e8f0', 
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                  }}
+                />
+                <Legend 
+                  verticalAlign="bottom" 
+                  align="center"
+                  iconType="circle"
+                  wrapperStyle={{ paddingTop: '20px', fontSize: '12px', fontWeight: 500 }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+
+        {/* Recent Registrations Placeholder */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm lg:col-span-2"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-bold text-gray-900">Recent Registrations</h3>
+            <button className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors">View All</button>
+          </div>
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-gray-50 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                    JD
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">John Doe</p>
+                    <p className="text-xs text-gray-500 font-medium">Hackathon 2024</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-bold text-gray-900">2 mins ago</p>
+                  <Badge variant="outline" className="text-green-600 bg-green-50 border-green-100 text-[10px] font-bold mt-1 uppercase">Paid</Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </CollegeLayout>
   );
 }

@@ -1,126 +1,266 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
-import { DashboardLayout } from '@/components/DashboardLayout';
-import { EventCard } from '@/components/EventCard';
+import { CollegeLayout } from '@/components/college/CollegeLayout';
+import { CollegeEventCard } from '@/components/college/CollegeEventCard';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Calendar, Filter, Search, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { Event } from '@/types';
+import { Input } from '@/components/ui/input';
+import { 
+  PlusCircle, 
+  Search, 
+  Filter, 
+  LayoutGrid, 
+  Table as TableIcon,
+  ChevronDown,
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  History
+} from 'lucide-react';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
-// Mock my events
-const MOCK_MY_EVENTS: Event[] = [
+// Mock data for events
+const mockEvents = [
   {
     id: '1',
-    title: 'CodeFest 2026',
-    description: 'A 24-hour hackathon to build innovative solutions for urban problems.',
-    eventDate: '2026-04-15',
-    lastRegistrationDate: '2026-04-10',
-    collegeId: 'c1',
-    collegeName: 'DTU',
-    city: 'Delhi',
-    type: 'Hackathon'
+    title: 'Annual Tech Symposium 2026',
+    date: '2026-05-15',
+    registrationCount: 452,
+    poster: 'https://images.unsplash.com/photo-1540575861501-7ad05823c95b?auto=format&fit=crop&q=80&w=800',
+    isFeatured: true,
+    status: 'upcoming' as const
+  },
+  {
+    id: '2',
+    title: 'Hack-The-Future Hackathon',
+    date: '2026-03-25',
+    registrationCount: 128,
+    poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=800',
+    isFeatured: false,
+    status: 'ongoing' as const
+  },
+  {
+    id: '3',
+    title: 'Cultural Night 2025',
+    date: '2025-12-10',
+    registrationCount: 890,
+    poster: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800',
+    isFeatured: false,
+    status: 'past' as const
   },
   {
     id: '4',
-    title: 'RoboWars 2.0',
-    description: 'The ultimate robot fighting competition.',
-    eventDate: '2026-05-10',
-    lastRegistrationDate: '2026-05-05',
-    collegeId: 'c1',
-    collegeName: 'DTU',
-    city: 'Delhi',
-    type: 'Competition'
+    title: 'AI Workshop: Generative AI',
+    date: '2026-06-02',
+    registrationCount: 75,
+    poster: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800',
+    isFeatured: true,
+    status: 'upcoming' as const
+  },
+  {
+    id: '5',
+    title: 'Inter-College Sports Meet',
+    date: '2026-04-12',
+    registrationCount: 310,
+    poster: 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?auto=format&fit=crop&q=80&w=800',
+    isFeatured: false,
+    status: 'upcoming' as const
   }
 ];
 
-export default function CollegeEvents() {
-  const [events, setEvents] = useState<Event[]>(MOCK_MY_EVENTS);
-  const [isLoading, setIsLoading] = useState(false);
+export default function ListedEvents() {
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'upcoming' | 'ongoing' | 'past'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const handleDelete = (id: string) => {
-    // Simulate API: DELETE /api/event/:id
-    if (confirm('Are you sure you want to delete this event?')) {
-      setEvents(prev => prev.filter(e => e.id !== id));
-      toast.success('Event deleted successfully!');
-    }
-  };
-
-  const handleEdit = (event: Event) => {
-    // Redirect to edit page or open modal
-    toast.info(`Editing event: ${event.title}`);
-  };
+  const filteredEvents = mockEvents.filter(event => {
+    const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterStatus === 'all' || event.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
 
   return (
-    <DashboardLayout allowedRoles={['COLLEGE_ADMIN']}>
+    <CollegeLayout>
       <div className="space-y-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Event Management</h1>
-            <p className="text-slate-500 font-medium mt-1">Manage and publish your college's upcoming events.</p>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Listed Events</h2>
+            <p className="text-gray-500 font-medium mt-1 text-sm">Manage and track all events hosted by your college.</p>
           </div>
-          <Link href="/college/events/new">
-            <Button className="h-12 px-8 rounded-xl font-bold shadow-lg shadow-primary/20">
-              <PlusCircle className="mr-2 h-5 w-5" />
-              Create New Event
+          <Link href="/college/events/manage">
+            <Button className="h-10 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-sm transition-all flex items-center gap-2">
+              <PlusCircle className="h-5 w-5" />
+              Create Event
             </Button>
           </Link>
         </div>
 
-        {/* Filters and Search */}
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1 group">
-            <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400 group-focus-within:text-primary transition-colors" />
-            <input 
-              placeholder="Search your events..." 
-              className="w-full pl-12 h-12 rounded-xl bg-white border border-slate-200 shadow-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+        {/* Filters & Search */}
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <div className="relative flex-1 w-full group">
+            <Search className="absolute left-3.5 h-4 w-4 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+            <Input 
+              placeholder="Search events by title..." 
+              className="pl-10 h-11 rounded-xl border-gray-200 bg-white focus:bg-white transition-all text-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Button variant="outline" className="h-12 px-6 rounded-xl border-slate-200 font-bold bg-white shadow-sm hover:bg-slate-50 transition-all">
-            <Filter className="mr-2 h-4 w-4" />
-            Filter
-          </Button>
-          <Button variant="outline" className="h-12 px-6 rounded-xl border-slate-200 font-bold bg-white shadow-sm hover:bg-slate-50 transition-all">
-            <Calendar className="mr-2 h-4 w-4" />
-            Sort by Date
-          </Button>
+          
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="h-11 px-4 rounded-xl border-gray-200 bg-white text-gray-700 font-bold text-xs uppercase tracking-wider flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  Status: {filterStatus}
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="rounded-xl border-gray-200">
+                <DropdownMenuItem onClick={() => setFilterStatus('all')} className="font-bold text-xs uppercase tracking-wider py-2.5 cursor-pointer">All Events</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterStatus('upcoming')} className="font-bold text-xs uppercase tracking-wider py-2.5 cursor-pointer">Upcoming</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterStatus('ongoing')} className="font-bold text-xs uppercase tracking-wider py-2.5 cursor-pointer">Ongoing</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterStatus('past')} className="font-bold text-xs uppercase tracking-wider py-2.5 cursor-pointer">Past</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <div className="flex items-center bg-gray-100 p-1 rounded-xl border border-gray-200">
+              <button 
+                onClick={() => setViewMode('grid')}
+                className={cn(
+                  "p-2 rounded-lg transition-all",
+                  viewMode === 'grid' ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-900"
+                )}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button 
+                onClick={() => setViewMode('table')}
+                className={cn(
+                  "p-2 rounded-lg transition-all",
+                  viewMode === 'table' ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-900"
+                )}
+              >
+                <TableIcon className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Events Grid */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          </div>
-        ) : events.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {events.map((event) => (
-              <EventCard 
-                key={event.id} 
-                event={event} 
-                showActions 
-                onEdit={handleEdit} 
-                onDelete={handleDelete} 
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white rounded-3xl p-20 text-center shadow-sm border border-slate-100 space-y-6">
-            <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mx-auto">
-              <Calendar className="h-10 w-10" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-slate-900">No events found</p>
-              <p className="text-slate-500 font-medium mt-2">You haven't created any events yet. Get started by creating your first event!</p>
-            </div>
-            <Link href="/college/events/new" className="inline-block">
-              <Button className="h-14 px-10 rounded-2xl font-bold shadow-lg shadow-primary/20">
-                Create First Event
+        {/* Events Display */}
+        <AnimatePresence mode="wait">
+          {filteredEvents.length > 0 ? (
+            viewMode === 'grid' ? (
+              <motion.div 
+                key="grid"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              >
+                {filteredEvents.map((event, index) => (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <CollegeEventCard event={event} />
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="table"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
+              >
+                <table className="w-full text-left">
+                  <thead className="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Event</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Registrations</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {filteredEvents.map((event) => (
+                      <tr key={event.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-lg overflow-hidden bg-gray-100">
+                              <img src={event.poster} alt="" className="h-full w-full object-cover" />
+                            </div>
+                            <span className="font-bold text-gray-900 text-sm">{event.title}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-medium text-gray-600">{event.date}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-bold text-gray-900">{event.registrationCount}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={cn(
+                            "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border",
+                            event.status === 'upcoming' ? "bg-blue-50 text-blue-600 border-blue-100" :
+                            event.status === 'ongoing' ? "bg-green-50 text-green-600 border-green-100" :
+                            "bg-gray-50 text-gray-500 border-gray-100"
+                          )}>
+                            {event.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <Button variant="ghost" size="sm" className="text-blue-600 font-bold text-xs">Manage</Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </motion.div>
+            )
+          ) : (
+            <motion.div 
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="py-20 flex flex-col items-center justify-center text-center space-y-4"
+            >
+              <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center">
+                <Search className="h-10 w-10 text-gray-300" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">No events found</h3>
+                <p className="text-gray-500 font-medium max-w-xs mt-1">Try adjusting your search or filters to find what you're looking for.</p>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => {setSearchQuery(''); setFilterStatus('all');}}
+                className="mt-4 rounded-xl border-gray-200"
+              >
+                Clear all filters
               </Button>
-            </Link>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </DashboardLayout>
+    </CollegeLayout>
   );
+}
+
+// Utility function
+function cn(...inputs: any[]) {
+  return inputs.filter(Boolean).join(' ');
 }
