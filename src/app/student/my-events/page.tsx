@@ -31,11 +31,12 @@ const MOCK_REGISTERED_EVENTS: Registration[] = [
     event: {
       id: '1',
       title: 'CodeFest 2026',
-      description: 'A 24-hour hackathon to build innovative solutions for urban problems in Delhi.',
+      description: 'A 24-hour hackathon to build innovative solutions for urban problems.',
       eventDate: '2026-04-15',
       lastRegistrationDate: '2026-04-10',
       collegeId: 'c1',
-      collegeName: 'DTU, Delhi',
+      collegeName: 'DTU',
+      city: 'Delhi',
       type: 'Hackathon'
     }
   },
@@ -51,7 +52,8 @@ const MOCK_REGISTERED_EVENTS: Registration[] = [
       eventDate: '2026-04-25',
       lastRegistrationDate: '2026-04-20',
       collegeId: 'c3',
-      collegeName: 'SRCC, DU',
+      collegeName: 'SRCC',
+      city: 'Delhi',
       type: 'Academic'
     }
   }

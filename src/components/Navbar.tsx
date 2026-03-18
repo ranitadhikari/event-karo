@@ -3,14 +3,26 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Calendar, User, LogOut, LayoutDashboard, Menu, X, Search } from 'lucide-react';
+import { Calendar, User, LogOut, LayoutDashboard, Menu, X, Search, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { LocationSelector } from './LocationSelector';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
+
+  const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim() !== '') {
+      router.push(`/events?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,6 +63,8 @@ export const Navbar: React.FC = () => {
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center space-x-8">
+          <LocationSelector />
+          
           <div className="flex items-center space-x-6 mr-4">
             {navLinks.map((link) => (
               <Link 
@@ -66,9 +80,40 @@ export const Navbar: React.FC = () => {
           <div className="h-8 w-[1px] bg-white/10 mx-2" />
 
           <div className="flex items-center space-x-4">
-            <button className="p-2 text-slate-400 hover:text-white transition-colors">
-              <Search className="h-5 w-5" />
-            </button>
+            <AnimatePresence>
+              {isSearchOpen ? (
+                <motion.div
+                  initial={{ width: 0, opacity: 0 }}
+                  animate={{ width: 'auto', opacity: 1 }}
+                  exit={{ width: 0, opacity: 0 }}
+                  className="flex items-center"
+                >
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search events..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={handleSearchSubmit}
+                      className="bg-transparent border-b-2 border-primary focus:outline-none text-white placeholder-slate-400 transition-all w-48"
+                    />
+                    <button
+                      onClick={() => setIsSearchOpen(false)}
+                      className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+                <button
+                  onClick={() => setIsSearchOpen(true)}
+                  className="p-2 text-slate-400 hover:text-white transition-colors"
+                >
+                  <Search className="h-5 w-5" />
+                </button>
+              )}
+            </AnimatePresence>
             
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
@@ -133,6 +178,10 @@ export const Navbar: React.FC = () => {
             className="md:hidden absolute top-full left-0 right-0 border-t border-white/10 p-6 space-y-6 bg-slate-950/95 backdrop-blur-2xl shadow-2xl"
           >
             <div className="space-y-4">
+              <div className="py-2 border-b border-white/10 mb-4">
+                <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3">Select Location</p>
+                <LocationSelector />
+              </div>
               {navLinks.map((link) => (
                 <Link 
                   key={link.href} 

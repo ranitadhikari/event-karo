@@ -16,6 +16,8 @@ export default function CollegeRegisterPage() {
     email: '',
     password: '',
     city: '',
+    state: '',
+    country: 'India',
     description: '',
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -140,23 +142,23 @@ export default function CollegeRegisterPage() {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-slate-700 font-semibold">Admin Email</Label>
-                    <div className="relative group">
-                      <Mail className="absolute left-3 top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-                      <Input 
-                        id="email" 
-                        name="email"
-                        type="email" 
-                        placeholder="admin@college.edu" 
-                        className="pl-10 h-12 rounded-xl bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-primary/20 transition-all"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required 
-                      />
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-slate-700 font-semibold">Admin Email</Label>
+                  <div className="relative group">
+                    <Mail className="absolute left-3 top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+                    <Input 
+                      id="email" 
+                      name="email"
+                      type="email" 
+                      placeholder="admin@college.edu" 
+                      className="pl-10 h-12 rounded-xl bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-primary/20 transition-all"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required 
+                    />
                   </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2">
                     <Label htmlFor="city" className="text-slate-700 font-semibold">City</Label>
                     <div className="relative group">
@@ -169,6 +171,20 @@ export default function CollegeRegisterPage() {
                         value={formData.city}
                         onChange={handleChange}
                         required 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="state" className="text-slate-700 font-semibold">State (Optional)</Label>
+                    <div className="relative group">
+                      <MapPin className="absolute left-3 top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+                      <Input 
+                        id="state" 
+                        name="state"
+                        placeholder="e.g. Delhi" 
+                        className="pl-10 h-12 rounded-xl bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-primary/20 transition-all"
+                        value={formData.state}
+                        onChange={handleChange}
                       />
                     </div>
                   </div>

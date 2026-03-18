@@ -20,31 +20,54 @@ import {
   Music,
   Lightbulb,
   Trophy,
-  Users
+  Users,
+  MapPin
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from '@/context/LocationContext';
 
 // Mock data with posters for cinematic look
 const FEATURED_EVENTS = [
   {
+    id: 'codesphere-hackathon',
+    title: 'CodeSphere Hackathon',
+    tagline: 'Think • Build • Ship',
+    description: 'A premium 36-hour hackathon where developers, designers, and innovators come together to build cutting-edge solutions.',
+    eventDate: '2026-03-18',
+    lastRegistrationDate: '2026-03-05',
+    collegeId: 'sgt-university',
+    collegeName: 'SGT University',
+    city: 'Gurugram',
+    state: 'Haryana',
+    type: 'Hackathon',
+    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773847448/WhatsApp_Image_2026-03-18_at_8.49.46_PM_n6833k.jpg', // Placeholder
+    prizePool: '₹1.5 Lakh',
+    isFeatured: true,
+  },
+  {
     id: '1',
     title: 'CodeFest 2026',
-    description: 'A 24-hour hackathon to build innovative solutions for urban problems in Delhi.',
+    description: 'A 24-hour hackathon to build innovative solutions for urban problems.',
     eventDate: '2026-04-15',
     lastRegistrationDate: '2026-04-10',
     collegeId: 'c1',
-    collegeName: 'DTU, Delhi',
+    collegeName: 'DTU',
+    city: 'Delhi',
+    country: 'India',
     type: 'Hackathon',
     poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000'
   },
   {
     id: '2',
     title: 'Cultural Fest: Tarang',
-    description: 'The annual cultural festival of LSR featuring music, dance, and arts.',
+    description: 'The annual cultural festival featuring music, dance, and arts.',
     eventDate: '2026-05-20',
     lastRegistrationDate: '2026-05-15',
     collegeId: 'c2',
-    collegeName: 'LSR, DU',
+    collegeName: 'LSR',
+    city: 'Delhi',
+    country: 'India',
     type: 'Cultural',
     poster: 'https://images.unsplash.com/photo-1514525253344-99a4299962c3?auto=format&fit=crop&q=80&w=1000'
   },
@@ -55,9 +78,24 @@ const FEATURED_EVENTS = [
     eventDate: '2026-04-25',
     lastRegistrationDate: '2026-04-20',
     collegeId: 'c3',
-    collegeName: 'SRCC, DU',
+    collegeName: 'SRCC',
+    city: 'Delhi',
+    country: 'India',
     type: 'Academic',
     poster: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&q=80&w=1000'
+  },
+  {
+    id: '6',
+    title: 'TechX Mumbai',
+    description: 'The biggest tech conference in Mumbai.',
+    eventDate: '2026-07-10',
+    lastRegistrationDate: '2026-07-01',
+    collegeId: 'c6',
+    collegeName: 'IIT Bombay',
+    city: 'Mumbai',
+    country: 'India',
+    type: 'Technical',
+    poster: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1000'
   }
 ];
 
@@ -70,9 +108,24 @@ const TRENDING_EVENTS = [
     eventDate: '2026-06-10',
     lastRegistrationDate: '2026-06-05',
     collegeId: 'c1',
-    collegeName: 'IIT Delhi',
+    collegeName: 'DTU',
+    city: 'Delhi',
+    country: 'India',
     type: 'Technical',
     poster: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=1000'
+  },
+  {
+    id: '7',
+    title: 'Pune Design Week',
+    description: 'Exploring the future of design and creativity.',
+    eventDate: '2026-08-15',
+    lastRegistrationDate: '2026-08-10',
+    collegeId: 'c7',
+    collegeName: 'COEP',
+    city: 'Pune',
+    country: 'India',
+    type: 'Workshop',
+    poster: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1000'
   }
 ];
 
@@ -86,10 +139,21 @@ const CATEGORIES = [
 
 const PARTICIPATING_COLLEGES = [
   {
+    id: 'sgt-university',
+    name: 'SGT University',
+    email: 'admin@sgtuniversity.ac.in',
+    city: 'Gurugram',
+    state: 'Haryana',
+    country: 'India',
+    description: 'A premier educational institution in Gurugram, Haryana, dedicated to excellence in teaching and research.',
+    status: 'APPROVED' as const,
+  },
+  {
     id: 'c1',
     name: 'Delhi Technological University',
     email: 'admin@dtu.ac.in',
     city: 'Delhi',
+    country: 'India',
     description: 'One of the oldest and most prestigious engineering colleges in India.',
     status: 'APPROVED' as const,
   },
@@ -98,125 +162,287 @@ const PARTICIPATING_COLLEGES = [
     name: 'Lady Shri Ram College',
     email: 'admin@lsr.edu.in',
     city: 'Delhi',
+    country: 'India',
     description: 'A premier institution for higher education for women in India.',
     status: 'APPROVED' as const,
   },
   {
-    id: 'c3',
-    name: 'SRCC',
-    email: 'admin@srcc.edu',
-    city: 'Delhi',
-    description: 'The top college in India for commerce and economics.',
+    id: 'c6',
+    name: 'IIT Bombay',
+    email: 'admin@iitb.ac.in',
+    city: 'Mumbai',
+    country: 'India',
+    description: 'The top engineering institute in Mumbai.',
     status: 'APPROVED' as const,
   }
 ];
 
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+};
+
 export default function LandingPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { selectedCity } = useLocation();
+
+  const featuredEvent = FEATURED_EVENTS.find(e => e.id === 'codesphere-hackathon');
+  const otherFeaturedEvents = FEATURED_EVENTS.filter(e => e.id !== 'codesphere-hackathon');
+
+  const filteredFeaturedEvents = selectedCity === 'All Cities' 
+    ? otherFeaturedEvents 
+    : otherFeaturedEvents.filter(e => e.city === selectedCity);
+
+  const displayEvents = filteredFeaturedEvents.length > 0 ? filteredFeaturedEvents : otherFeaturedEvents;
+
+  // Reset slide index when displayEvents changes to avoid out-of-bounds error
+  useEffect(() => {
+    setCurrentSlide(0);
+  }, [selectedCity]);
 
   useEffect(() => {
+    if (displayEvents.length === 0) return;
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % FEATURED_EVENTS.length);
+      setCurrentSlide((prev) => (prev + 1) % displayEvents.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [displayEvents.length]);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-white selection:bg-primary selection:text-white">
       <Navbar />
       
       <main className="flex-grow">
-        {/* 1. Hero Banner Carousel Section */}
-        <section className="relative h-[85vh] w-full overflow-hidden">
-          <AnimatePresence mode="wait">
+        {/* 0. Main Featured Event Hero (CodeSphere) */}
+        {featuredEvent && (
+          <section className="relative h-[90vh] w-full overflow-hidden">
             <motion.div
-              key={currentSlide}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1 }}
+              transition={{ duration: 1.5 }}
               className="absolute inset-0"
             >
-              {/* Poster Background */}
-              <img 
-                src={FEATURED_EVENTS[currentSlide].poster} 
-                alt={FEATURED_EVENTS[currentSlide].title}
-                className="h-full w-full object-cover scale-105"
+              {/* Poster Background with Zoom Effect */}
+              <motion.img 
+                src={featuredEvent.poster} 
+                alt={featuredEvent.title}
+                initial={{ scale: 1.1 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
+                className="h-full w-full object-cover"
               />
-              {/* Cinematic Overlays */}
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent" />
+              
+              {/* Dark Gradient Overlays */}
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-slate-950/20" />
               
               {/* Content */}
               <div className="absolute inset-0 container mx-auto px-6 flex flex-col justify-center">
-                <motion.div 
-                  initial={{ y: 30, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3, duration: 0.8 }}
-                  className="max-w-2xl space-y-6"
-                >
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 backdrop-blur-md border border-primary/30 rounded-full text-primary font-bold text-xs uppercase tracking-widest">
-                    <Sparkles className="h-4 w-4" />
-                    <span>Featured Event</span>
-                  </div>
-                  <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none">
-                    {FEATURED_EVENTS[currentSlide].title.split(':').map((part, i) => (
-                      <span key={i} className={i === 1 ? "text-primary block" : "block"}>
-                        {part}
+                <div className="max-w-4xl space-y-8">
+                  <motion.div 
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                    className="space-y-4"
+                  >
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500/20 border border-amber-500/30 rounded-full text-amber-500 font-black text-[10px] uppercase tracking-[0.2em] backdrop-blur-md shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                      {/* <Sparkles className="h-3.5 w-3.5 fill-current" /> */}
+                      {/* <span>🔥 Featured Event</span> */}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <p className="text-primary font-black text-base md:text-xl uppercase tracking-[0.4em]">
+                        {featuredEvent.tagline}
+                      </p>
+                      <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[1.1] md:leading-[1] uppercase drop-shadow-2xl">
+                        {featuredEvent.title.split(' ')[0]}<br/>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-cyan-400">
+                          {featuredEvent.title.split(' ').slice(1).join(' ')}
+                        </span>
+                      </h1>
+                    </div>
+
+                    <p className="text-lg md:text-xl text-slate-300 font-medium max-w-2xl leading-relaxed">
+                      {featuredEvent.description}
+                    </p>
+                  </motion.div>
+
+                  <motion.div 
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.8, duration: 0.8 }}
+                    className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 py-6 border-y border-white/10"
+                  >
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Prize Pool</span>
+                      <span className="text-xl md:text-2xl font-black text-amber-400 flex items-center gap-2">
+                        <Trophy className="h-5 w-5 md:h-6 md:w-6 shrink-0" /> {featuredEvent.prizePool}
                       </span>
-                    ))}
-                  </h1>
-                  <p className="text-xl text-slate-300 max-w-lg line-clamp-2 font-medium">
-                    {FEATURED_EVENTS[currentSlide].description}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-6 pt-4">
-                    <Link href={`/event/${FEATURED_EVENTS[currentSlide].id}`}>
-                      <Button size="lg" className="bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest px-10 h-14 rounded-xl shadow-2xl shadow-primary/20">
-                        Register Now
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Date</span>
+                      <span className="text-xl md:text-2xl font-black text-white flex items-center gap-2">
+                        <Calendar className="h-5 w-5 md:h-6 md:w-6 text-primary shrink-0" /> {formatDate(featuredEvent.eventDate)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1 col-span-2 md:col-span-1">
+                      <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Location</span>
+                      <span className="text-xl md:text-2xl font-black text-white flex items-center gap-2">
+                        <MapPin className="h-5 w-5 md:h-6 md:w-6 text-primary shrink-0" /> {featuredEvent.collegeName}
+                      </span>
+                    </div>
+                  </motion.div>
+
+                  <motion.div 
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 1.1, duration: 0.8 }}
+                    className="flex flex-wrap gap-6 pt-4"
+                  >
+                    <Link href={`/event/${featuredEvent.id}`}>
+                      <Button size="lg" className="h-16 px-10 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-[0_20px_40px_-10px_rgba(59,130,246,0.5)] flex items-center gap-3 group">
+                        Register Now 
+                        <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
                       </Button>
                     </Link>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Event Date</span>
-                      <span className="text-lg font-bold">{FEATURED_EVENTS[currentSlide].eventDate}</span>
+                    <div className="flex items-center gap-4 px-6 border border-white/10 rounded-2xl backdrop-blur-md bg-white/5">
+                      <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-sm font-bold uppercase tracking-widest text-slate-400">
+                        Registrations Open Until {formatDate(featuredEvent.lastRegistrationDate)}
+                      </span>
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </div>
               </div>
             </motion.div>
-          </AnimatePresence>
+          </section>
+        )}
 
-          {/* Slide Indicators */}
-          <div className="absolute bottom-10 right-10 flex gap-3">
-            {FEATURED_EVENTS.map((_, i) => (
+        {/* 1. Hero Banner Carousel Section (Existing Featured Events) */}
+        {displayEvents.length > 0 && displayEvents[currentSlide] && (
+          <section className="relative h-[60vh] w-full overflow-hidden border-t border-white/5">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`${selectedCity}-${currentSlide}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1 }}
+                className="absolute inset-0"
+              >
+                {/* Poster Background */}
+                <img 
+                  src={displayEvents[currentSlide].poster} 
+                  alt={displayEvents[currentSlide].title}
+                  className="h-full w-full object-cover scale-105"
+                />
+                {/* Cinematic Overlays */}
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                
+                {/* Content */}
+                <div className="absolute inset-0 container mx-auto px-6 flex flex-col justify-center">
+                  <motion.div 
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.3, duration: 0.8 }}
+                    className="max-w-3xl space-y-6"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Badge className="bg-primary/20 text-primary border-primary/30 px-3 py-1 text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm">
+                        {displayEvents[currentSlide].type}
+                      </Badge>
+                      <div className="flex items-center text-slate-400 text-xs font-bold uppercase tracking-widest">
+                        <MapPin className="h-3.5 w-3.5 mr-1.5 text-primary" />
+                        {displayEvents[currentSlide].city}
+                      </div>
+                    </div>
+                    
+                    <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-[1.1] md:leading-none">
+                      {displayEvents[currentSlide].title}
+                    </h2>
+                    
+                    <p className="text-base md:text-lg text-slate-300 font-medium max-w-xl leading-relaxed">
+                      {displayEvents[currentSlide].description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-4 pt-4">
+                      <Link href={`/event/${displayEvents[currentSlide].id}`}>
+                        <Button className="bg-white text-slate-950 hover:bg-slate-200 font-bold uppercase tracking-widest px-8 h-12 rounded-xl">
+                          View Details
+                        </Button>
+                      </Link>
+                      <div className="flex items-center gap-3 px-4 rounded-xl border border-white/10 backdrop-blur-md bg-white/5">
+                        <Calendar className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-bold uppercase tracking-widest">{formatDate(displayEvents[currentSlide].eventDate)}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+            
+            {/* Slider Controls */}
+            <div className="absolute bottom-10 right-10 flex items-center gap-4 z-20">
               <button 
-                key={i} 
-                onClick={() => setCurrentSlide(i)}
-                className={`h-1 transition-all duration-500 rounded-full ${i === currentSlide ? 'w-12 bg-primary' : 'w-6 bg-white/20'}`}
-              />
-            ))}
-          </div>
-        </section>
+                onClick={() => setCurrentSlide((prev) => (prev - 1 + displayEvents.length) % displayEvents.length)}
+                className="h-12 w-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+              <div className="flex gap-2">
+                {displayEvents.map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`h-1.5 transition-all duration-300 rounded-full ${i === currentSlide ? 'w-8 bg-primary' : 'w-2 bg-white/20'}`} 
+                  />
+                ))}
+              </div>
+              <button 
+                onClick={() => setCurrentSlide((prev) => (prev + 1) % displayEvents.length)}
+                className="h-12 w-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button>
+            </div>
+          </section>
+        )}
 
         {/* 2. Trending Events Section */}
-        <section className="py-24 bg-slate-950 overflow-hidden">
+        <section className="py-24 bg-slate-950 relative overflow-hidden">
           <div className="container mx-auto px-6">
-            <div className="flex items-end justify-between mb-12">
-              <div className="space-y-2">
-                <h2 className="text-4xl font-black tracking-tighter uppercase">Trending Events</h2>
-                <div className="h-1 w-20 bg-primary rounded-full" />
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-primary font-bold text-[10px] uppercase tracking-widest">
+                  <Zap className="h-3.5 w-3.5" />
+                  <span>Happening Now</span>
+                </div>
+                <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-none">
+                  {selectedCity === 'All Cities' ? 'Explore Events Across India' : `Events in ${selectedCity}`}
+                </h2>
+                <p className="text-slate-400 font-medium text-lg max-w-xl">
+                  {selectedCity === 'All Cities' 
+                    ? 'Discover the most exciting college events happening all over the country.' 
+                    : `Check out what's happening in ${selectedCity}'s top colleges.`}
+                </p>
               </div>
               <Link href="/events">
-                <Button variant="ghost" className="text-slate-400 hover:text-white uppercase tracking-widest font-bold text-xs flex items-center gap-2">
-                  View All <ArrowRight className="h-4 w-4" />
+                <Button variant="outline" className="border-white/10 hover:bg-white/5 text-white font-bold uppercase tracking-widest text-xs h-12 px-8 rounded-xl">
+                  View All Events <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
 
-            <div className="flex gap-8 overflow-x-auto pb-12 snap-x no-scrollbar">
-              {TRENDING_EVENTS.map((event, i) => (
-                <div key={event.id} className="min-w-[320px] md:min-w-[380px] snap-start">
-                  <EventCard event={event} />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {(selectedCity === 'All Cities' 
+                ? TRENDING_EVENTS 
+                : TRENDING_EVENTS.filter(e => e.city === selectedCity)
+              ).map((event) => (
+                <EventCard key={event.id} event={event} />
               ))}
             </div>
           </div>

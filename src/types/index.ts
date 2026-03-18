@@ -20,6 +20,8 @@ export interface College {
   name: string;
   email: string;
   city: string;
+  state?: string;
+  country: string;
   description: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   website?: string;
@@ -33,11 +35,17 @@ export interface Event {
   id: string;
   title: string;
   description: string;
+  tagline?: string;
   eventDate: string;
   lastRegistrationDate: string;
   collegeId: string;
   collegeName: string;
+  city: string;
+  state?: string;
   type: string;
+  poster?: string;
+  prizePool?: string;
+  isFeatured?: boolean;
 }
 
 export interface Registration {

@@ -14,21 +14,23 @@ const MOCK_MY_EVENTS: Event[] = [
   {
     id: '1',
     title: 'CodeFest 2026',
-    description: 'A 24-hour hackathon to build innovative solutions for urban problems in Delhi.',
+    description: 'A 24-hour hackathon to build innovative solutions for urban problems.',
     eventDate: '2026-04-15',
     lastRegistrationDate: '2026-04-10',
     collegeId: 'c1',
-    collegeName: 'DTU, Delhi',
+    collegeName: 'DTU',
+    city: 'Delhi',
     type: 'Hackathon'
   },
   {
     id: '4',
     title: 'RoboWars 2.0',
-    description: 'The ultimate robot fighting competition. Build your bot and fight for the title.',
+    description: 'The ultimate robot fighting competition.',
     eventDate: '2026-05-10',
     lastRegistrationDate: '2026-05-05',
     collegeId: 'c1',
-    collegeName: 'DTU, Delhi',
+    collegeName: 'DTU',
+    city: 'Delhi',
     type: 'Competition'
   }
 ];

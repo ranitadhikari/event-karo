@@ -13,11 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 import { AuthProvider } from "@/context/AuthContext";
+import { LocationProvider } from "@/context/LocationContext";
 import { Toaster } from "@/components/ui/sonner";
+import { FloatingBanner } from "@/components/FloatingBanner";
 
 export const metadata: Metadata = {
   title: "EventKaro - Centralized College Events Platform",
-  description: "Discover and manage events across colleges in Delhi.",
+  description: "Discover and manage events across colleges across India.",
 };
 
 export default function RootLayout({
@@ -31,8 +33,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          {children}
-          <Toaster />
+          <LocationProvider>
+            {children}
+            <FloatingBanner />
+            <Toaster />
+          </LocationProvider>
         </AuthProvider>
       </body>
     </html>

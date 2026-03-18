@@ -68,12 +68,12 @@ export default function LoginPage() {
             <span className="text-primary">with ease.</span>
           </h1>
           <p className="text-lg text-slate-600 leading-relaxed max-w-md">
-            The most powerful platform for college event discovery and management in Delhi. Join thousands of students and admins.
+            The most powerful platform for college event discovery and management. Join thousands of students and admins across India.
           </p>
           <div className="space-y-4 pt-4">
             <div className="flex items-center space-x-3 p-4 bg-white rounded-2xl border shadow-sm">
               <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-sm">01</div>
-              <p className="text-sm font-medium text-slate-700">Centralized discovery for all Delhi colleges</p>
+              <p className="text-sm font-medium text-slate-700">Centralized discovery for colleges nationwide</p>
             </div>
             <div className="flex items-center space-x-3 p-4 bg-white rounded-2xl border shadow-sm">
               <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-sm">02</div>

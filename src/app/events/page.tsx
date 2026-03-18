@@ -1,34 +1,55 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { EventCard } from '@/components/EventCard';
-import { Search, Sparkles, Filter } from 'lucide-react';
+import { FilterDropdown } from '@/components/FilterDropdown';
+import { Search, Sparkles } from 'lucide-react';
 import { Event } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from '@/context/LocationContext';
+import { useSearchParams } from 'next/navigation';
 
 // Mock all events with posters
 const MOCK_ALL_EVENTS: (Event & { poster?: string })[] = [
   {
+    id: 'codesphere-hackathon',
+    title: 'CodeSphere Hackathon',
+    tagline: 'Think • Build • Ship',
+    description: 'A premium 36-hour hackathon where developers, designers, and innovators come together to build cutting-edge solutions.',
+    eventDate: '2026-03-18',
+    lastRegistrationDate: '2026-03-05',
+    collegeId: 'sgt-university',
+    collegeName: 'SGT University',
+    city: 'Gurugram',
+    state: 'Haryana',
+    type: 'Hackathon',
+    poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000', // Placeholder
+    prizePool: '₹1.5 Lakh',
+    isFeatured: true,
+  },
+  {
     id: '1',
     title: 'CodeFest 2026',
-    description: 'A 24-hour hackathon to build innovative solutions for urban problems in Delhi.',
+    description: 'A 24-hour hackathon to build innovative solutions for urban problems.',
     eventDate: '2026-04-15',
     lastRegistrationDate: '2026-04-10',
     collegeId: 'c1',
-    collegeName: 'DTU, Delhi',
+    collegeName: 'DTU',
+    city: 'Delhi',
     type: 'Hackathon',
     poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000'
   },
   {
     id: '2',
     title: 'Cultural Fest: Tarang',
-    description: 'The annual cultural festival of LSR featuring music, dance, and arts.',
+    description: 'The annual cultural festival featuring music, dance, and arts.',
     eventDate: '2026-05-20',
     lastRegistrationDate: '2026-05-15',
     collegeId: 'c2',
-    collegeName: 'LSR, DU',
+    collegeName: 'LSR',
+    city: 'Delhi',
     type: 'Cultural',
     poster: 'https://images.unsplash.com/photo-1514525253344-99a4299962c3?auto=format&fit=crop&q=80&w=1000'
   },
@@ -39,43 +60,75 @@ const MOCK_ALL_EVENTS: (Event & { poster?: string })[] = [
     eventDate: '2026-04-25',
     lastRegistrationDate: '2026-04-20',
     collegeId: 'c3',
-    collegeName: 'SRCC, DU',
+    collegeName: 'SRCC',
+    city: 'Delhi',
     type: 'Academic',
     poster: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&q=80&w=1000'
   },
   {
     id: '4',
     title: 'RoboWars 2.0',
-    description: 'The ultimate robot fighting competition. Build your bot and fight for the title.',
+    description: 'The ultimate robot fighting competition.',
     eventDate: '2026-05-10',
     lastRegistrationDate: '2026-05-05',
     collegeId: 'c1',
-    collegeName: 'DTU, Delhi',
+    collegeName: 'DTU',
+    city: 'Delhi',
     type: 'Competition',
     poster: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=1000'
   },
   {
-    id: '5',
-    title: 'Eco-Entrepreneurship Workshop',
-    description: 'Building sustainable businesses for a greener future. Workshop for budding entrepreneurs.',
-    eventDate: '2026-04-30',
-    lastRegistrationDate: '2026-04-25',
-    collegeId: 'c2',
-    collegeName: 'LSR, DU',
+    id: '6',
+    title: 'TechX Mumbai',
+    description: 'The biggest tech conference in Mumbai.',
+    eventDate: '2026-07-10',
+    lastRegistrationDate: '2026-07-01',
+    collegeId: 'c6',
+    collegeName: 'IIT Bombay',
+    city: 'Mumbai',
+    type: 'Technical',
+    poster: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1000'
+  },
+  {
+    id: '7',
+    title: 'Pune Design Week',
+    description: 'Exploring the future of design and creativity.',
+    eventDate: '2026-08-15',
+    lastRegistrationDate: '2026-08-10',
+    collegeId: 'c7',
+    collegeName: 'COEP',
+    city: 'Pune',
     type: 'Workshop',
-    poster: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1000'
+    poster: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1000'
   }
 ];
 
 export default function EventsPage() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [filterType, setFilterType] = useState('all');
+  const { selectedCity } = useLocation();
+
+  useEffect(() => {
+    const query = searchParams.get('search');
+    if (query !== null) {
+      setSearchTerm(query);
+    }
+  }, [searchParams]);
 
   const filteredEvents = MOCK_ALL_EVENTS.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          event.collegeName.toLowerCase().includes(searchTerm.toLowerCase());
+                          event.collegeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          event.city.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === 'all' || event.type === filterType;
-    return matchesSearch && matchesType;
+    const matchesCity = selectedCity === 'All Cities' || event.city === selectedCity;
+    return matchesSearch && matchesType && matchesCity;
+  }).sort((a, b) => {
+    // Always pin featured events to top
+    if (a.isFeatured && !b.isFeatured) return -1;
+    if (!a.isFeatured && b.isFeatured) return 1;
+    return 0;
   });
 
   const eventTypes = ['all', ...Array.from(new Set(MOCK_ALL_EVENTS.map(e => e.type)))];
@@ -94,14 +147,26 @@ export default function EventsPage() {
                 <span>Discover the Best</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none">
-                All <span className="text-primary">Events</span>
+                {selectedCity === 'All Cities' ? 'All Events' : `Events in ${selectedCity}`}
               </h1>
-              <p className="text-slate-400 font-medium text-lg">Browse through the most exciting college events in Delhi.</p>
+              <p className="text-slate-400 font-medium text-lg">
+                {selectedCity === 'All Cities' 
+                  ? 'Browse through the most exciting college events across India.' 
+                  : `Browse through the most exciting college events in ${selectedCity}.`}
+              </p>
             </div>
           </div>
 
           {/* Search & Filter Bar */}
-          <div className="flex flex-col lg:flex-row gap-6 items-center">
+          <div className="flex flex-col md:flex-row gap-4 items-center bg-white/5 p-2 rounded-3xl border border-white/10">
+            <div className="w-full md:w-auto">
+              <FilterDropdown
+                options={eventTypes}
+                selectedValue={filterType}
+                onChange={setFilterType}
+              />
+            </div>
+            
             <div className="relative flex-grow group w-full">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-primary transition-colors" />
               <input 
@@ -109,24 +174,8 @@ export default function EventsPage() {
                 placeholder="Search by event name, college or type..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 text-white focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all font-medium"
+                className="w-full h-14 bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-2xl pl-14 pr-6 text-white focus:outline-none focus:ring-4 focus:ring-primary/10 md:focus:ring-0 transition-all font-medium"
               />
-            </div>
-
-            <div className="flex gap-3 overflow-x-auto w-full lg:w-auto pb-2 no-scrollbar">
-              {eventTypes.map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setFilterType(type)}
-                  className={`h-14 px-8 rounded-2xl font-bold uppercase tracking-widest text-xs transition-all whitespace-nowrap ${
-                    filterType === type 
-                      ? 'bg-primary text-white shadow-lg shadow-primary/20' 
-                      : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
             </div>
           </div>
 

@@ -27,47 +27,87 @@ import { College, Event } from '@/types';
 import { motion } from 'framer-motion';
 
 // Mock college detail data with poster
-const MOCK_COLLEGE: College & { recentEvents: Event[] } = {
-  id: 'c1',
-  name: 'Delhi Technological University',
-  email: 'admin@dtu.ac.in',
-  city: 'Delhi',
-  description: 'Delhi Technological University (DTU), formerly known as Delhi College of Engineering (DCE), is a premier government university located in New Delhi, India.',
-  status: 'APPROVED',
-  website: 'https://www.dtu.ac.in',
-  address: 'Shahbad Daulatpur, Main Bawana Road, Delhi, 110042',
-  phone: '011-27871018',
-  about: 'Established in 1941, it is one of the oldest and most prestigious engineering colleges in the country. DTU has been a pioneer in engineering education and research for over eight decades. The university offers undergraduate, postgraduate, and doctoral programs in various disciplines of engineering, technology, science, and management.',
-  logo: '',
-  recentEvents: [
-    {
-      id: '1',
-      title: 'CodeFest 2026',
-      description: 'A 24-hour hackathon to build innovative solutions for urban problems in Delhi.',
-      eventDate: '2026-04-15',
-      lastRegistrationDate: '2026-04-10',
-      collegeId: 'c1',
-      collegeName: 'DTU, Delhi',
-      type: 'Hackathon',
-      poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000'
-    },
-    {
-      id: '4',
-      title: 'RoboWars 2.0',
-      description: 'The ultimate robot fighting competition. Build your bot and fight for the title.',
-      eventDate: '2026-05-10',
-      lastRegistrationDate: '2026-05-05',
-      collegeId: 'c1',
-      collegeName: 'DTU, Delhi',
-      type: 'Competition',
-      poster: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=1000'
-    }
-  ]
+const MOCK_COLLEGES_DATA: Record<string, College & { recentEvents: Event[] }> = {
+  'sgt-university': {
+    id: 'sgt-university',
+    name: 'SGT University',
+    email: 'admin@sgtuniversity.ac.in',
+    city: 'Gurugram',
+    state: 'Haryana',
+    country: 'India',
+    description: 'SGT University is a premier educational institution in Gurugram, Haryana, dedicated to excellence in teaching and research across various disciplines including Medicine, Engineering, Law, and Management.',
+    status: 'APPROVED',
+    website: 'https://sgtuniversity.ac.in',
+    address: 'SGT University, Budhera, Gurugram-Badli Road, Gurugram, 122505',
+    phone: '1800-102-5661',
+    about: 'SGT University, Gurugram, which spread over 70 acres of lush green campus, is a private university in Gurugram, Haryana. It was established in 2013 and has been accredited by NAAC with an A+ grade. The university offers a wide range of undergraduate, postgraduate, and doctoral programs and is known for its world-class infrastructure and industry-aligned curriculum.',
+    logo: '',
+    recentEvents: [
+      {
+        id: 'codesphere-hackathon',
+        title: 'CodeSphere Hackathon',
+        tagline: 'Think • Build • Ship',
+        description: 'A premium 36-hour hackathon where developers, designers, and innovators come together to build cutting-edge solutions.',
+        eventDate: '2026-03-18',
+        lastRegistrationDate: '2026-03-05',
+        collegeId: 'sgt-university',
+        collegeName: 'SGT University',
+        city: 'Gurugram',
+        state: 'Haryana',
+        type: 'Hackathon',
+        poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000',
+        prizePool: '₹1.5 Lakh',
+        isFeatured: true,
+      }
+    ]
+  },
+  'c1': {
+    id: 'c1',
+    name: 'Delhi Technological University',
+    email: 'admin@dtu.ac.in',
+    city: 'Delhi',
+    state: 'Delhi',
+    country: 'India',
+    description: 'Delhi Technological University (DTU), formerly known as Delhi College of Engineering (DCE), is a premier government university located in New Delhi, India.',
+    status: 'APPROVED',
+    website: 'https://www.dtu.ac.in',
+    address: 'Shahbad Daulatpur, Main Bawana Road, Delhi, 110042',
+    phone: '011-27871018',
+    about: 'Established in 1941, it is one of the oldest and most prestigious engineering colleges in the country. DTU has been a pioneer in engineering education and research for over eight decades. The university offers undergraduate, postgraduate, and doctoral programs in various disciplines of engineering, technology, science, and management.',
+    logo: '',
+    recentEvents: [
+      {
+        id: '1',
+        title: 'CodeFest 2026',
+        description: 'A 24-hour hackathon to build innovative solutions for urban problems.',
+        eventDate: '2026-04-15',
+        lastRegistrationDate: '2026-04-10',
+        collegeId: 'c1',
+        collegeName: 'DTU',
+        city: 'Delhi',
+        type: 'Hackathon',
+        poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000'
+      },
+      {
+        id: '4',
+        title: 'RoboWars 2.0',
+        description: 'The ultimate robot fighting competition.',
+        eventDate: '2026-05-10',
+        lastRegistrationDate: '2026-05-05',
+        collegeId: 'c1',
+        collegeName: 'DTU',
+        city: 'Delhi',
+        type: 'Competition',
+        poster: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=1000'
+      }
+    ]
+  }
 };
 
 export default function CollegeProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const college = MOCK_COLLEGE;
+  const college = MOCK_COLLEGES_DATA[resolvedParams.id] || MOCK_COLLEGES_DATA['c1'];
+  const isSGT = college.id === 'sgt-university';
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-white selection:bg-primary">
@@ -109,8 +149,13 @@ export default function CollegeProfilePage({ params }: { params: Promise<{ id: s
                   <Badge className="bg-primary/20 text-primary border-primary/30 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
                     <ShieldCheck className="h-3 w-3 mr-1" /> Verified Partner
                   </Badge>
+                  {isSGT && (
+                    <Badge className="bg-amber-500 text-slate-950 border-none px-3 py-1 text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
+                      <Sparkles className="h-3 w-3 fill-current" /> Premium Partner
+                    </Badge>
+                  )}
                   <Badge variant="outline" className="bg-white/5 border-white/10 text-slate-400 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
-                    <MapPin className="h-3 w-3 mr-1" /> {college.city}
+                    <MapPin className="h-3 w-3 mr-1" /> {college.city}{college.state ? `, ${college.state}` : ''}
                   </Badge>
                 </div>
                 
@@ -125,15 +170,15 @@ export default function CollegeProfilePage({ params }: { params: Promise<{ id: s
                 <div className="flex flex-wrap justify-center md:justify-start gap-8 pt-6">
                   <div className="flex flex-col">
                     <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Total Events</span>
-                    <span className="text-2xl font-black text-white">45+</span>
+                    <span className="text-2xl font-black text-white">{isSGT ? '50+' : '45+'}</span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Students</span>
-                    <span className="text-2xl font-black text-white">12K+</span>
+                    <span className="text-2xl font-black text-white">{isSGT ? '15K+' : '12K+'}</span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Established</span>
-                    <span className="text-2xl font-black text-white">1941</span>
+                    <span className="text-2xl font-black text-white">{isSGT ? '2013' : '1941'}</span>
                   </div>
                 </div>
 
@@ -220,9 +265,9 @@ export default function CollegeProfilePage({ params }: { params: Promise<{ id: s
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-primary font-bold text-[10px] uppercase tracking-widest">
                   <Sparkles className="h-3.5 w-3.5" />
-                  <span>Happening Now</span>
+                  <span>{isSGT ? 'Main Event' : 'Happening Now'}</span>
                 </div>
-                <h2 className="text-4xl font-black tracking-tighter uppercase">Recent Events</h2>
+                <h2 className="text-4xl font-black tracking-tighter uppercase">{isSGT ? 'Featured Events' : 'Recent Events'}</h2>
                 <div className="h-1 w-20 bg-primary rounded-full" />
               </div>
               <Button variant="ghost" className="text-slate-400 hover:text-white uppercase tracking-widest font-bold text-xs flex items-center gap-2">
@@ -232,15 +277,28 @@ export default function CollegeProfilePage({ params }: { params: Promise<{ id: s
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {college.recentEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-              {/* Extra mock cards to fill space */}
-              <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-3xl flex flex-col items-center justify-center p-12 text-center space-y-4">
-                <div className="h-16 w-16 rounded-full bg-white/5 flex items-center justify-center">
-                  <Calendar className="h-8 w-8 text-slate-600" />
+                <div key={event.id} className={event.isFeatured ? "md:col-span-2 lg:col-span-1" : ""}>
+                  <EventCard event={event} />
                 </div>
-                <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">More events coming soon</p>
-              </div>
+              ))}
+              {isSGT && (
+                <div className="bg-gradient-to-br from-primary/10 to-purple-600/10 border border-white/10 rounded-3xl flex flex-col items-center justify-center p-12 text-center space-y-4">
+                  <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Trophy className="h-8 w-8 text-primary" />
+                  </div>
+                  <h4 className="text-lg font-bold uppercase tracking-tight">Biggest Hackathon of 2026</h4>
+                  <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Only at SGT University</p>
+                </div>
+              )}
+              {/* Extra mock cards to fill space */}
+              {!isSGT && (
+                <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-3xl flex flex-col items-center justify-center p-12 text-center space-y-4">
+                  <div className="h-16 w-16 rounded-full bg-white/5 flex items-center justify-center">
+                    <Calendar className="h-8 w-8 text-slate-600" />
+                  </div>
+                  <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">More events coming soon</p>
+                </div>
+              )}
             </div>
           </div>
         </section>
