@@ -45,7 +45,6 @@ export const CollegeNavbar: React.FC<CollegeNavbarProps> = ({
     if (path === '/college/users') return 'User Management';
     if (path === '/college/notifications') return 'Notifications';
     if (path === '/college/newsletter') return 'Newsletter Management';
-    if (path === '/college/analytics') return 'Analytics';
     return 'College Panel';
   };
 

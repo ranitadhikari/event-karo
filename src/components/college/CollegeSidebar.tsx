@@ -11,7 +11,6 @@ import {
   Users, 
   Bell, 
   Mail, 
-  BarChart3,
   LogOut,
   PlusCircle
 } from 'lucide-react';
@@ -30,7 +29,6 @@ const sidebarItems: SidebarItem[] = [
   { label: 'User Management', href: '/college/users', icon: Users },
   { label: 'Notifications', href: '/college/notifications', icon: Bell },
   { label: 'Newsletter', href: '/college/newsletter', icon: Mail },
-  { label: 'Analytics', href: '/college/analytics', icon: BarChart3 },
 ];
 
 interface CollegeSidebarProps {
