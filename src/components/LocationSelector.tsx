@@ -32,7 +32,7 @@ export const LocationSelector: React.FC = () => {
   return (
     <div className="flex items-center space-x-2">
       <MapPin className="h-4 w-4 text-primary" />
-      <Select value={selectedCity} onValueChange={setSelectedCity}>
+      <Select value={selectedCity} onValueChange={(val) => val && setSelectedCity(val)}>
         <SelectTrigger className="w-[140px] bg-white/5 border-white/10 text-white font-bold text-[10px] uppercase tracking-widest h-9 rounded-xl focus:ring-primary/20">
           <SelectValue placeholder="Select City" />
         </SelectTrigger>

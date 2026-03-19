@@ -103,7 +103,7 @@ const MOCK_ALL_EVENTS: (Event & { poster?: string })[] = [
   }
 ];
 
-export default function EventsPage() {
+function EventsContent() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
   const [searchTerm, setSearchTerm] = useState(initialSearch);
@@ -219,5 +219,13 @@ export default function EventsPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function EventsPage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Loading events...</div>}>
+      <EventsContent />
+    </React.Suspense>
   );
 }
