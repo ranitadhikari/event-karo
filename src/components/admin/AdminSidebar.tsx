@@ -9,7 +9,9 @@ import {
   GraduationCap, 
   ClipboardList, 
   LogOut, 
-  Calendar 
+  Calendar,
+  Gem,
+  Plus
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -24,6 +26,8 @@ const sidebarItems: SidebarItem[] = [
   { label: 'College Requests', href: '/admin/requests', icon: ClipboardList },
   { label: 'Listed Colleges', href: '/admin/colleges', icon: GraduationCap },
   { label: 'Events', href: '/admin/events', icon: Calendar },
+  { label: 'Sponsors', href: '/superadmin/sponsors', icon: Gem },
+  { label: 'Add Sponsor', href: '/superadmin/create-sponsor', icon: Plus },
 ];
 
 interface AdminSidebarProps {

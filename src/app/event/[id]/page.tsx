@@ -25,19 +25,24 @@ import {
   Mail,
   User,
   MessageSquare,
+  Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDate } from '@/utils/formatDate';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getEventById, submitEnquiry, PublicEvent } from '@/lib/api';
+import { getEventSponsors } from '@/lib/sponsorApi';
+import { Sponsor } from '@/types';
 
 export default function EventDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const router = useRouter();
 
   const [event, setEvent] = useState<PublicEvent | null>(null);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSponsorsLoading, setIsSponsorsLoading] = useState(true);
   const [error, setError] = useState('');
 
   // Enquiry modal state
@@ -55,6 +60,12 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
       })
       .catch(() => setError('Failed to load event'))
       .finally(() => setIsLoading(false));
+
+    // Fetch sponsors
+    getEventSponsors(resolvedParams.id)
+      .then(setSponsors)
+      .catch(() => console.error('Failed to load sponsors'))
+      .finally(() => setIsSponsorsLoading(false));
   }, [resolvedParams.id]);
 
   // Lock body scroll when modal open
@@ -267,6 +278,52 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                       <p className="text-slate-400 font-medium text-lg">{getCollegeCity()}</p>
                     </div>
                   </div>
+                </div>
+
+                {/* Sponsors Section */}
+                <div className="space-y-6 pt-12 border-t border-white/5">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Sparkles className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="text-3xl font-black uppercase tracking-tighter">Powered By Sponsors</h3>
+                  </div>
+                  <div className="h-1.5 w-24 bg-primary rounded-full mb-8" />
+                  
+                  {isSponsorsLoading ? (
+                    <div className="flex items-center gap-3 text-slate-500 font-medium italic">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading partners...
+                    </div>
+                  ) : sponsors.length === 0 ? (
+                    <div className="bg-white/5 border border-dashed border-white/10 rounded-3xl p-12 text-center">
+                      <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">No Sponsors Yet</p>
+                      <p className="text-slate-600 text-xs mt-2">Check back later for event partners</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                      {sponsors.map((sponsor) => (
+                        <div key={sponsor._id} className="group relative bg-white/5 border border-white/10 p-6 rounded-3xl hover:bg-white hover:border-white transition-all duration-500 text-center">
+                          <div className="h-16 w-full mb-4 flex items-center justify-center">
+                            {sponsor.logo ? (
+                              <img src={sponsor.logo} alt={sponsor.name} className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500" />
+                            ) : (
+                              <Building2 className="h-8 w-8 text-slate-500" />
+                            )}
+                          </div>
+                          <h4 className="font-bold text-sm text-white group-hover:text-slate-900 transition-colors truncate px-2">{sponsor.name}</h4>
+                          <div className={`mt-2 inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${
+                            sponsor.tier === 'title' ? 'bg-purple-500/20 text-purple-400 group-hover:bg-purple-100 group-hover:text-purple-600' :
+                            sponsor.tier === 'gold' ? 'bg-amber-500/20 text-amber-400 group-hover:bg-amber-100 group-hover:text-amber-600' :
+                            sponsor.tier === 'silver' ? 'bg-slate-500/20 text-slate-400 group-hover:bg-slate-100 group-hover:text-slate-600' :
+                            'bg-orange-500/20 text-orange-400 group-hover:bg-orange-100 group-hover:text-orange-600'
+                          }`}>
+                            {sponsor.tier}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 

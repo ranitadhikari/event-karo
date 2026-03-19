@@ -47,6 +47,17 @@ export interface Event {
   poster?: string;
   prizePool?: string;
   isFeatured?: boolean;
+  sponsors?: Sponsor[];
+}
+
+export interface Sponsor {
+  _id: string;
+  name: string;
+  logo?: string;
+  website?: string;
+  tier: 'title' | 'gold' | 'silver' | 'bronze';
+  isActive: boolean;
+  events?: string[];
 }
 
 export interface Registration {

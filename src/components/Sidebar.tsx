@@ -12,7 +12,9 @@ import {
   LogOut, 
   PlusCircle, 
   GraduationCap, 
-  UserCircle 
+  UserCircle,
+  Gem,
+  Plus
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -35,6 +37,8 @@ export const Sidebar: React.FC = () => {
           { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
           { label: 'Colleges', href: '/admin/colleges', icon: GraduationCap },
           { label: 'Events', href: '/admin/events', icon: Calendar },
+          { label: 'Sponsors', href: '/superadmin/sponsors', icon: Gem },
+          { label: 'Add Sponsor', href: '/superadmin/create-sponsor', icon: Plus },
           { label: 'Settings', href: '/admin/settings', icon: Settings },
         ];
       case 'collegeadmin':

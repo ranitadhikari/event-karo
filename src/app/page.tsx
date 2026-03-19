@@ -26,7 +26,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from '@/context/LocationContext';
+import { useAuth } from '@/context/AuthContext';
 import { getColleges, getAllEvents, PublicEvent, PublicCollege } from '@/lib/api';
+import { getSponsors } from '@/lib/sponsorApi';
+import { Sponsor } from '@/types';
 
 // ── Static hero banner (pinned featured event) ─────────────────────────────
 const HERO_EVENT = {
@@ -85,15 +88,26 @@ const toCollegeCardShape = (c: PublicCollege) => ({
 });
 
 export default function LandingPage() {
+  const { token } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
   const { selectedCity } = useLocation();
   const [dynamicEvents, setDynamicEvents] = useState<PublicEvent[]>([]);
   const [dynamicColleges, setDynamicColleges] = useState<PublicCollege[]>([]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
 
   // Fetch events and colleges on mount
   useEffect(() => {
-    getAllEvents().then(setDynamicEvents).catch(() => {});
-    getColleges().then(setDynamicColleges).catch(() => {});
+    console.log('LandingPage: Fetching initial data...');
+    getAllEvents().then(setDynamicEvents).catch(err => console.error('LandingPage: Fetch events failed', err));
+    getColleges().then(setDynamicColleges).catch(err => {
+      console.error('LandingPage: Fetch colleges failed', err);
+    });
+    getSponsors(token || undefined).then(data => {
+      console.log('LandingPage: Sponsors fetched successfully', data);
+      setSponsors(data);
+    }).catch(err => {
+      console.error('LandingPage: Fetch sponsors failed', err);
+    });
   }, []);
 
   // Carousel events: use API data if available, else empty
@@ -355,9 +369,49 @@ export default function LandingPage() {
                   {dynamicEvents.length === 0 ? 'Loading events...' : 'No events found for this city.'}
                 </div>
               )}
-          </div>
+            </div>
           </div>
         </section>
+
+        {/* Sponsors Infinite Carousel Section */}
+        {sponsors.length > 0 && (
+          <section className="py-12 bg-slate-900 border-y border-white/5 relative overflow-hidden">
+            <div className="container mx-auto px-6 mb-8 flex items-center justify-between">
+              <h2 className="text-xl font-black tracking-tight uppercase flex items-center gap-3">
+                <Sparkles className="h-5 w-5 text-primary" />
+                Our Platform Partners
+              </h2>
+              <div className="h-px flex-1 mx-8 bg-gradient-to-r from-white/10 to-transparent" />
+            </div>
+            
+            <div className="flex overflow-hidden relative group">
+              <motion.div 
+                animate={{ x: [0, -1035] }}
+                transition={{ 
+                  duration: 30, 
+                  repeat: Infinity, 
+                  ease: "linear" 
+                }}
+                className="flex items-center gap-12 px-6 whitespace-nowrap"
+              >
+                {[...sponsors, ...sponsors, ...sponsors].map((sponsor, i) => (
+                  <div 
+                    key={`${sponsor._id}-${i}`} 
+                    className="flex flex-col items-center gap-3 grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer"
+                  >
+                    <div className="h-20 w-40 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-4 hover:border-primary/50 hover:bg-white transition-all">
+                      {sponsor.logo ? (
+                        <img src={sponsor.logo} alt={sponsor.name} className="max-h-full max-w-full object-contain" />
+                      ) : (
+                        <span className="text-white font-bold">{sponsor.name}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          </section>
+        )}
 
         {/* 3. Explore by Category */}
         <section className="py-24 bg-slate-900/50 relative">
