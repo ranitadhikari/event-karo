@@ -4,14 +4,16 @@ import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AdminTable } from '@/components/admin/AdminTable';
 import { ConfirmationModal } from '@/components/admin/ConfirmationModal';
+import { cn } from '@/utils/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { College } from '@/types';
-import { GraduationCap, MapPin, Mail, CheckCircle2, Trash2 } from 'lucide-react';
+import { GraduationCap, MapPin, Mail, CheckCircle2, Trash2, Calendar } from 'lucide-react';
 import axios from 'axios';
 
 import { useAuth } from '@/context/AuthContext';
+import { getSuperAdminEvents } from '@/lib/api';
 
 export default function ListedCollegesPage() {
   const { token } = useAuth();
@@ -19,6 +21,7 @@ export default function ListedCollegesPage() {
   const [filteredColleges, setFilteredColleges] = useState<College[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [eventCounts, setEventCounts] = useState<Record<string, number>>({});
   
   // Delete Modal States
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -28,8 +31,25 @@ export default function ListedCollegesPage() {
   useEffect(() => {
     if (token) {
       fetchColleges();
+      fetchEventCounts();
     }
   }, [token]);
+
+  const fetchEventCounts = async () => {
+    try {
+      const events = await getSuperAdminEvents(token!);
+      const counts: Record<string, number> = {};
+      events.forEach(ev => {
+        const collegeId = typeof ev.college === 'object' ? ev.college?._id : ev.college;
+        if (collegeId) {
+          counts[collegeId] = (counts[collegeId] || 0) + 1;
+        }
+      });
+      setEventCounts(counts);
+    } catch (err) {
+      console.error('Failed to fetch event counts:', err);
+    }
+  };
 
   const fetchColleges = async () => {
     try {
@@ -127,7 +147,31 @@ export default function ListedCollegesPage() {
       )
     },
     {
-      header: 'Actions',
+      header: 'Events Hosted',
+      accessorKey: 'id',
+      cell: (item: College) => {
+        const collegeId = item.id || (item as any)._id;
+        const count = eventCounts[collegeId] || 0;
+        return (
+          <div className="flex items-center space-x-2">
+            <div className={cn(
+              "p-1.5 rounded-lg",
+              count > 0 ? "bg-blue-500/10 text-blue-500" : "bg-slate-500/10 text-slate-400"
+            )}>
+              <Calendar className="h-4 w-4" />
+            </div>
+            <span className={cn(
+              "font-bold text-sm",
+              count > 0 ? "text-slate-900" : "text-slate-400"
+            )}>
+              {count} {count === 1 ? 'Event' : 'Events'}
+            </span>
+          </div>
+        );
+      }
+    },
+    { 
+      header: 'Actions', 
       accessorKey: 'id',
       cell: (item: College) => (
         <Button 

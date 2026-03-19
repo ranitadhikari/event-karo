@@ -16,9 +16,9 @@ interface AdminNavbarProps {
 }
 
 const routeTitles: Record<string, string> = {
-  '/admin/dashboard': 'Overview',
   '/admin/requests': 'College Requests',
   '/admin/colleges': 'Listed Colleges',
+  '/admin/events': 'All Events',
 };
 
 export const AdminNavbar: React.FC<AdminNavbarProps> = ({ 

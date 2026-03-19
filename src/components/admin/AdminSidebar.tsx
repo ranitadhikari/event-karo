@@ -23,6 +23,7 @@ const sidebarItems: SidebarItem[] = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
   { label: 'College Requests', href: '/admin/requests', icon: ClipboardList },
   { label: 'Listed Colleges', href: '/admin/colleges', icon: GraduationCap },
+  { label: 'Events', href: '/admin/events', icon: Calendar },
 ];
 
 interface AdminSidebarProps {

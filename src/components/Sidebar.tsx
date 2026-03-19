@@ -34,6 +34,7 @@ export const Sidebar: React.FC = () => {
         return [
           { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
           { label: 'Colleges', href: '/admin/colleges', icon: GraduationCap },
+          { label: 'Events', href: '/admin/events', icon: Calendar },
           { label: 'Settings', href: '/admin/settings', icon: Settings },
         ];
       case 'collegeadmin':

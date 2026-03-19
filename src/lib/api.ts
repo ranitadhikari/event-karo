@@ -19,6 +19,7 @@ export interface PublicEvent {
   venue: string;
   city?: string;
   eventDate: string;
+  lastDate?: string;
   posters: string[];
   category?: string;
   status: string;
@@ -144,6 +145,42 @@ export async function getMyEvents(token: string): Promise<PublicEvent[]> {
     headers: { Authorization: `Bearer ${token}` },
     cache: 'no-store',
   });
-  if (!res.ok) throw new Error('Failed to fetch your events');
+  return res.json();
+}
+
+/** Fetch a single event's details (admin/managed view) */
+export async function getManagedEventById(id: string, token: string): Promise<PublicEvent> {
+  const res = await fetch(`${BASE_URL}/api/event/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error('Failed to fetch event details');
+  return res.json();
+}
+
+/** Update an existing event (supports both college admin and superadmin) */
+export async function updateEvent(id: string, data: FormData, token: string): Promise<{ message: string }> {
+  const res = await fetch(`${BASE_URL}/api/event/${id}`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: data,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Failed to update event');
+  }
+  return res.json();
+}
+
+/** Delete an event (supports both college admin and superadmin) */
+export async function deleteEvent(id: string, token: string): Promise<{ message: string }> {
+  const res = await fetch(`${BASE_URL}/api/event/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Failed to delete event');
+  }
   return res.json();
 }
