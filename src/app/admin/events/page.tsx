@@ -133,7 +133,7 @@ export default function SuperAdminEventsPage() {
             {/* Quick Filter Row */}
             <div className="flex flex-wrap items-center gap-3">
               <div className="w-40">
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <Select value={selectedCategory} onValueChange={(val) => setSelectedCategory(val || 'all')}>
                   <SelectTrigger className="bg-white border-slate-200 rounded-xl h-10 text-xs font-bold uppercase tracking-wider">
                     <div className="flex items-center gap-2">
                       <Tag className="h-3.5 w-3.5 text-blue-500" />
@@ -150,7 +150,7 @@ export default function SuperAdminEventsPage() {
               </div>
 
               <div className="w-40">
-                <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <Select value={selectedCity} onValueChange={(val) => setSelectedCity(val || 'all')}>
                   <SelectTrigger className="bg-white border-slate-200 rounded-xl h-10 text-xs font-bold uppercase tracking-wider">
                     <div className="flex items-center gap-2">
                       <MapPin className="h-3.5 w-3.5 text-emerald-500" />
