@@ -45,7 +45,7 @@ const MOCK_EVENTS_DATA: Record<string, Event & { poster: string, tagline?: strin
     city: 'Gurugram',
     state: 'Haryana',
     type: 'Hackathon',
-    poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1200',
+    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773847448/WhatsApp_Image_2026-03-18_at_8.49.46_PM_n6833k.jpg',
     prizePool: '₹1.5 Lakh',
     isFeatured: true
   },
@@ -59,7 +59,7 @@ const MOCK_EVENTS_DATA: Record<string, Event & { poster: string, tagline?: strin
     collegeName: 'Delhi Technological University (DTU)',
     city: 'Delhi',
     type: 'Hackathon',
-    poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1200'
+    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773907689/WhatsApp_Image_2026-03-18_at_8.49.39_PM_lzvxo4.jpg'
   }
 };
 
@@ -317,7 +317,7 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                       <p className="text-slate-400 font-medium text-lg">{event.city}, {event.state || 'India'}</p>
                     </div>
                   </div>
-                  <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 font-bold uppercase tracking-widest h-14 px-8 rounded-2xl">
+                  <Button variant="outline" className="border-white/20 text-black hover:bg-white/10 font-bold uppercase tracking-widest h-14 px-8 rounded-2xl">
                     Get Directions
                   </Button>
                 </div>

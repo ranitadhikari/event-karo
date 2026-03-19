@@ -86,7 +86,7 @@ const MOCK_COLLEGES_DATA: Record<string, College & { recentEvents: Event[] }> = 
         collegeName: 'DTU',
         city: 'Delhi',
         type: 'Hackathon',
-        poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000'
+        poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773907689/WhatsApp_Image_2026-03-18_at_8.49.39_PM_lzvxo4.jpg'
       },
       {
         id: '4',

@@ -33,7 +33,7 @@ const mockEvents = [
     title: 'Annual Tech Symposium 2026',
     date: '2026-05-15',
     registrationCount: 452,
-    poster: 'https://images.unsplash.com/photo-1540575861501-7ad05823c95b?auto=format&fit=crop&q=80&w=800',
+    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773909089/1756201378364_dovsp6.jpg',
     isFeatured: true,
     status: 'upcoming' as const
   },
@@ -42,7 +42,7 @@ const mockEvents = [
     title: 'Hack-The-Future Hackathon',
     date: '2026-03-25',
     registrationCount: 128,
-    poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=800',
+    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773907689/WhatsApp_Image_2026-03-18_at_8.49.39_PM_lzvxo4.jpg',
     isFeatured: false,
     status: 'ongoing' as const
   },
@@ -51,7 +51,7 @@ const mockEvents = [
     title: 'Cultural Night 2025',
     date: '2025-12-10',
     registrationCount: 890,
-    poster: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800',
+    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773907412/WhatsApp_Image_2026-03-18_at_3.25.39_PM_nbmlu2.jpg',
     isFeatured: false,
     status: 'past' as const
   },

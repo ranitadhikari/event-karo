@@ -39,7 +39,7 @@ const MOCK_ALL_EVENTS: (Event & { poster?: string })[] = [
     collegeName: 'DTU',
     city: 'Delhi',
     type: 'Hackathon',
-    poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000'
+    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773907689/WhatsApp_Image_2026-03-18_at_8.49.39_PM_lzvxo4.jpg'
   },
   {
     id: '2',
@@ -51,7 +51,7 @@ const MOCK_ALL_EVENTS: (Event & { poster?: string })[] = [
     collegeName: 'LSR',
     city: 'Delhi',
     type: 'Cultural',
-    poster: 'https://images.unsplash.com/photo-1514525253344-99a4299962c3?auto=format&fit=crop&q=80&w=1000'
+    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773907689/WhatsApp_Image_2026-03-18_at_8.49.39_PM_lzvxo4.jpg'
   },
   {
     id: '3',

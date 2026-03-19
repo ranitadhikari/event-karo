@@ -56,7 +56,7 @@ const FEATURED_EVENTS = [
     city: 'Delhi',
     country: 'India',
     type: 'Hackathon',
-    poster: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000'
+    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773907689/WhatsApp_Image_2026-03-18_at_8.49.39_PM_lzvxo4.jpg'
   },
   {
     id: '2',
@@ -69,7 +69,7 @@ const FEATURED_EVENTS = [
     city: 'Delhi',
     country: 'India',
     type: 'Cultural',
-    poster: 'https://images.unsplash.com/photo-1514525253344-99a4299962c3?auto=format&fit=crop&q=80&w=1000'
+    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773907412/WhatsApp_Image_2026-03-18_at_3.25.39_PM_nbmlu2.jpg'
   },
   {
     id: '3',
