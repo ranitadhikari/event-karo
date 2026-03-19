@@ -210,56 +210,57 @@ export default function CollegeProfilePage({ params }: { params: Promise<{ id: s
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {events.map((event: PublicEvent, index: number) => (
-                  <motion.div
-                    key={event._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.08 }}
-                    className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-primary/30 transition-colors group"
-                  >
-                    {/* Poster */}
-                    <div className="aspect-[16/9] overflow-hidden bg-slate-800">
-                      {event.posters && event.posters.length > 0 ? (
-                        <img
-                          src={event.posters[0]}
-                          alt={event.title}
-                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="h-full w-full bg-gradient-to-br from-primary/20 to-slate-800 flex items-center justify-center">
-                          <Building2 className="h-10 w-10 text-primary/40" />
-                        </div>
-                      )}
-                    </div>
+                  <Link key={event._id} href={`/event/${event._id}`} className="block">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.08 }}
+                      className="h-full bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-primary/30 transition-all group cursor-pointer"
+                    >
+                      {/* Poster */}
+                      <div className="aspect-[16/9] overflow-hidden bg-slate-800">
+                        {event.posters && event.posters.length > 0 ? (
+                          <img
+                            src={event.posters[0]}
+                            alt={event.title}
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="h-full w-full bg-gradient-to-br from-primary/20 to-slate-800 flex items-center justify-center">
+                            <Building2 className="h-10 w-10 text-primary/40" />
+                          </div>
+                        )}
+                      </div>
 
-                    {/* Details */}
-                    <div className="p-6 space-y-3">
-                      <h3 className="text-lg font-bold text-white line-clamp-1 group-hover:text-primary transition-colors">
-                        {event.title}
-                      </h3>
-                      {event.description && (
-                        <p className="text-slate-400 text-sm line-clamp-2 leading-relaxed">{event.description}</p>
-                      )}
-                      <div className="space-y-1.5 pt-1">
-                        {event.venue && (
-                          <div className="flex items-center gap-2 text-xs text-slate-400">
-                            <Building2 className="h-3.5 w-3.5 text-primary/60 flex-shrink-0" />
-                            <span className="truncate">{event.venue}</span>
-                          </div>
+                      {/* Details */}
+                      <div className="p-6 space-y-3">
+                        <h3 className="text-lg font-bold text-white line-clamp-1 group-hover:text-primary transition-colors">
+                          {event.title}
+                        </h3>
+                        {event.description && (
+                          <p className="text-slate-400 text-sm line-clamp-2 leading-relaxed">{event.description}</p>
                         )}
-                        {event.city && (
+                        <div className="space-y-1.5 pt-1">
+                          {event.venue && (
+                            <div className="flex items-center gap-2 text-xs text-slate-400">
+                              <Building2 className="h-3.5 w-3.5 text-primary/60 flex-shrink-0" />
+                              <span className="truncate">{event.venue}</span>
+                            </div>
+                          )}
+                          {event.city && (
+                            <div className="flex items-center gap-2 text-xs text-slate-400">
+                              <MapPin className="h-3.5 w-3.5 text-primary/60 flex-shrink-0" />
+                              <span>{event.city}</span>
+                            </div>
+                          )}
                           <div className="flex items-center gap-2 text-xs text-slate-400">
-                            <MapPin className="h-3.5 w-3.5 text-primary/60 flex-shrink-0" />
-                            <span>{event.city}</span>
+                            <Calendar className="h-3.5 w-3.5 text-primary/60 flex-shrink-0" />
+                            <span>{formatDate(event.eventDate)}</span>
                           </div>
-                        )}
-                        <div className="flex items-center gap-2 text-xs text-slate-400">
-                          <Calendar className="h-3.5 w-3.5 text-primary/60 flex-shrink-0" />
-                          <span>{formatDate(event.eventDate)}</span>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
+                    </motion.div>
+                  </Link>
                 ))}
               </div>
             )}
