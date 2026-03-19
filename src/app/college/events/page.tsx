@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CollegeLayout } from '@/components/college/CollegeLayout';
 import { CollegeEventCard } from '@/components/college/CollegeEventCard';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,9 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock,
-  History
+  History,
+  Trash2,
+  Edit3
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -25,62 +27,95 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
-// Mock data for events
-const mockEvents = [
-  {
-    id: '1',
-    title: 'Annual Tech Symposium 2026',
-    date: '2026-05-15',
-    registrationCount: 452,
-    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773909089/1756201378364_dovsp6.jpg',
-    isFeatured: true,
-    status: 'upcoming' as const
-  },
-  {
-    id: '2',
-    title: 'Hack-The-Future Hackathon',
-    date: '2026-03-25',
-    registrationCount: 128,
-    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773907689/WhatsApp_Image_2026-03-18_at_8.49.39_PM_lzvxo4.jpg',
-    isFeatured: false,
-    status: 'ongoing' as const
-  },
-  {
-    id: '3',
-    title: 'Cultural Night 2025',
-    date: '2025-12-10',
-    registrationCount: 890,
-    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773907412/WhatsApp_Image_2026-03-18_at_3.25.39_PM_nbmlu2.jpg',
-    isFeatured: false,
-    status: 'past' as const
-  },
-  {
-    id: '4',
-    title: 'AI Workshop: Generative AI',
-    date: '2026-06-02',
-    registrationCount: 75,
-    poster: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800',
-    isFeatured: true,
-    status: 'upcoming' as const
-  },
-  {
-    id: '5',
-    title: 'Inter-College Sports Meet',
-    date: '2026-04-12',
-    registrationCount: 310,
-    poster: 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?auto=format&fit=crop&q=80&w=800',
-    isFeatured: false,
-    status: 'upcoming' as const
-  }
-];
+// Type for backend event response
+interface BackendEvent {
+  _id: string;
+  title: string;
+  eventDate: string;
+  posters: string[];
+  status: 'upcoming' | 'completed' | 'cancelled';
+}
+
+// Type for frontend component
+interface FrontendEvent {
+  id: string;
+  title: string;
+  date: string;
+  registrationCount: number;
+  poster: string;
+  isFeatured: boolean;
+  status: 'upcoming' | 'ongoing' | 'past';
+}
 
 export default function ListedEvents() {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [filterStatus, setFilterStatus] = useState<'all' | 'upcoming' | 'ongoing' | 'past'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [events, setEvents] = useState<FrontendEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { token } = useAuth();
 
-  const filteredEvents = mockEvents.filter(event => {
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/event/my`;
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Map backend events to frontend interface
+        const mappedEvents: FrontendEvent[] = data.map((ev: BackendEvent) => ({
+          id: ev._id,
+          title: ev.title,
+          date: ev.eventDate,
+          registrationCount: 0, // Not available in current backend response
+          poster: ev.posters && ev.posters.length > 0 ? ev.posters[0] : 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?auto=format&fit=crop&q=80&w=800',
+          isFeatured: false,
+          status: ev.status === 'completed' ? 'past' : ev.status
+        }));
+        setEvents(mappedEvents);
+      } else {
+        toast.error(data.message || 'Failed to fetch events');
+      }
+    } catch (err) {
+      toast.error('Server error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this event?')) return;
+    try {
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/event/${id}`;
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        toast.success('Event deleted');
+        setEvents(events.filter(ev => ev.id !== id));
+      } else {
+        toast.error('Failed to delete event');
+      }
+    } catch {
+      toast.error('Server error');
+    }
+  };
+
+  const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = filterStatus === 'all' || event.status === filterStatus;
     return matchesSearch && matchesFilter;
@@ -166,16 +201,24 @@ export default function ListedEvents() {
                 exit={{ opacity: 0 }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
               >
-                {filteredEvents.map((event, index) => (
-                  <motion.div
-                    key={event.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <CollegeEventCard event={event} />
-                  </motion.div>
-                ))}
+                {isLoading ? (
+                  <div className="col-span-full py-20 text-center font-bold text-gray-500">Loading events...</div>
+                ) : (
+                  filteredEvents.map((event, index) => (
+                    <motion.div
+                      key={event.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <CollegeEventCard 
+                        event={event} 
+                        onDelete={handleDelete}
+                        onEdit={(id) => window.location.href = `/college/events/${id}/edit`} 
+                      />
+                    </motion.div>
+                  ))
+                )}
               </motion.div>
             ) : (
               <motion.div
@@ -223,7 +266,16 @@ export default function ListedEvents() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <Button variant="ghost" size="sm" className="text-blue-600 font-bold text-xs">Manage</Button>
+                          <div className="flex justify-end gap-2">
+                            <Link href={`/college/events/${event.id}/edit`}>
+                              <Button variant="ghost" size="sm" className="text-blue-600 font-bold text-xs">
+                                <Edit3 className="h-4 w-4 mr-1" /> Edit
+                              </Button>
+                            </Link>
+                            <Button variant="ghost" size="sm" onClick={() => handleDelete(event.id)} className="text-red-600 font-bold text-xs hover:text-red-700 hover:bg-red-50">
+                              <Trash2 className="h-4 w-4 mr-1" /> Delete
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))}

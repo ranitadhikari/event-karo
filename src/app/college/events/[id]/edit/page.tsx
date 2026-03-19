@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { CollegeLayout } from '@/components/college/CollegeLayout';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -22,7 +22,6 @@ import {
   MapPin, 
   Image as ImageIcon, 
   Tag, 
-  Clock,
   Save,
   Loader2,
   CheckCircle2
@@ -30,10 +29,14 @@ import {
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
-export default function EventManagement() {
+export default function EditEventPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   const router = useRouter();
+  const params = useParams();
+  const eventId = params.id as string;
   const { token } = useAuth();
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -42,8 +45,58 @@ export default function EventManagement() {
     category: '',
     venue: '',
     city: '',
-    posters: [] as File[]
+    posters: [] as File[],
+    existingPosters: [] as string[]
   });
+
+  useEffect(() => {
+    if (eventId && token) {
+      fetchEventDetails();
+    }
+  }, [eventId, token]);
+
+  const fetchEventDetails = async () => {
+    try {
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/event/my`;
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      
+      if (response.ok) {
+        const event = data.find((ev: any) => ev._id === eventId);
+        if (event) {
+          // Format dates to datetime-local expected format (YYYY-MM-DDThh:mm)
+          const formatDateToInput = (dateStr: string) => {
+             if (!dateStr) return '';
+             const d = new Date(dateStr);
+             return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+          };
+
+          setFormData({
+            title: event.title || '',
+            description: event.description || '',
+            date: event.eventDate ? formatDateToInput(event.eventDate) : '',
+            lastRegistrationDate: event.lastDate ? formatDateToInput(event.lastDate) : '',
+            category: event.category || '',
+            venue: event.venue || '',
+            city: event.city || '',
+            posters: [],
+            existingPosters: event.posters || []
+          });
+        } else {
+          toast.error("Event not found");
+          router.push('/college/events');
+        }
+      }
+    } catch (err) {
+      toast.error('Failed to load event details');
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -62,12 +115,6 @@ export default function EventManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (formData.posters.length === 0) {
-      toast.error('Please upload at least one event poster');
-      return;
-    }
-
     setIsLoading(true);
 
     try {
@@ -80,13 +127,14 @@ export default function EventManagement() {
       data.append('venue', formData.venue);
       data.append('city', formData.city);
       
+      // Note: Only appending new posters. The backend logic will probably overwrite posters if `req.files.length > 0`
       formData.posters.forEach(file => {
         data.append('posters', file);
       });
 
-      const url = `${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/event/create`;
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/event/${eventId}`;
       const response = await fetch(url, {
-        method: 'POST',
+        method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -96,11 +144,10 @@ export default function EventManagement() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || 'Failed to create event');
+        throw new Error(result.message || 'Failed to update event');
       }
 
-      toast.success('Event created successfully!', {
-        description: 'Your event is now live and listed for students.',
+      toast.success('Event updated successfully!', {
         icon: <CheckCircle2 className="h-5 w-5 text-emerald-500" />
       });
       
@@ -112,12 +159,22 @@ export default function EventManagement() {
     }
   };
 
+  if (isFetching) {
+    return (
+      <CollegeLayout>
+         <div className="flex h-[400px] items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+         </div>
+      </CollegeLayout>
+    );
+  }
+
   return (
     <CollegeLayout>
       <div className="space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Event Management</h2>
-          <p className="text-gray-500 font-medium mt-1 text-sm">Create and launch new events for your college.</p>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Edit Event</h2>
+          <p className="text-gray-500 font-medium mt-1 text-sm">Update the details of your event.</p>
         </div>
 
         <motion.div
@@ -129,11 +186,11 @@ export default function EventManagement() {
             <CardHeader className="bg-gray-50/50 border-b border-gray-100 p-6">
               <div className="flex items-center gap-4">
                 <div className="h-10 w-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <PlusCircle className="h-5 w-5" />
+                  <Edit3Icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg font-bold text-gray-900">Create New Event</CardTitle>
-                  <CardDescription className="text-xs font-medium text-gray-500">Enter event details to get started</CardDescription>
+                  <CardTitle className="text-lg font-bold text-gray-900">Update Selected Event</CardTitle>
+                  <CardDescription className="text-xs font-medium text-gray-500">Modify the fields you wish to change</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -218,7 +275,6 @@ export default function EventManagement() {
                           type="datetime-local" 
                           value={formData.lastRegistrationDate}
                           onChange={handleChange}
-                          required
                           className="h-10 rounded-lg"
                         />
                       </div>
@@ -252,7 +308,6 @@ export default function EventManagement() {
                           placeholder="e.g. Mumbai" 
                           value={formData.city}
                           onChange={handleChange}
-                          required
                           className="h-10 rounded-lg"
                         />
                       </div>
@@ -280,9 +335,11 @@ export default function EventManagement() {
                           </div>
                           <div>
                             <p className="text-sm font-bold text-gray-900">
-                              {formData.posters.length > 0 ? `${formData.posters.length} file(s) selected` : 'Click or drag to upload event posters'}
+                              {formData.posters.length > 0 
+                                ? `${formData.posters.length} new file(s) selected` 
+                                : `Upload new posters (current: ${formData.existingPosters.length})`}
                             </p>
-                            <p className="text-xs text-gray-500 font-medium mt-1">PNG, JPG or WEBP (Max 5MB per file, max 10 files)</p>
+                            <p className="text-xs text-gray-500 font-medium mt-1">Leave empty to keep existing images. PNG, JPG or WEBP (Max 5MB per file, max 10 files)</p>
                           </div>
                         </div>
                       </div>
@@ -303,17 +360,17 @@ export default function EventManagement() {
                 <Button 
                   type="submit" 
                   disabled={isLoading}
-                  className="h-10 px-8 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-sm transition-all flex items-center gap-2"
+                  className="h-10 px-8 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-sm transition-all flex items-center gap-2 z-10 relative"
                 >
                   {isLoading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Creating...
+                      Saving...
                     </>
                   ) : (
                     <>
                       <Save className="h-4 w-4" />
-                      Launch Event
+                      Update Event
                     </>
                   )}
                 </Button>
@@ -325,3 +382,25 @@ export default function EventManagement() {
     </CollegeLayout>
   );
 }
+
+// Ensure Edit3Icon is declared at module scope for it to be rendered correctly above.
+function Edit3Icon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+    </svg>
+  );
+}
+
