@@ -431,7 +431,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <Link href="/events">
-                <Button variant="outline" className="border-white/10 hover:bg-white/5 text-white font-bold uppercase tracking-widest text-xs h-12 px-8 rounded-xl">
+                <Button variant="outline" className="bg-white text-slate-950 hover:bg-slate-200 font-bold uppercase tracking-widest px-10 h-16 rounded-2xl shadow-2xl">
                   View All Events <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
@@ -494,7 +494,7 @@ export default function LandingPage() {
             
             <div className="mt-16 text-center">
               <Link href="/colleges">
-                <Button variant="outline" className="border-white/10 text-white hover:bg-white/5 font-bold uppercase tracking-widest px-8 h-12 rounded-xl">
+                <Button variant="outline" className="bg-white text-slate-950 hover:bg-slate-200 font-bold uppercase tracking-widest px-10 h-16 rounded-2xl shadow-2xl">
                   Explore All Colleges
                 </Button>
               </Link>
@@ -521,7 +521,7 @@ export default function LandingPage() {
                   </Button>
                 </Link>
                 <Link href="/college/register">
-                  <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/5 font-bold uppercase tracking-widest px-10 h-16 rounded-2xl">
+                  <Button size="lg" variant="outline" className="bg-white text-slate-950 hover:bg-slate-200 font-bold uppercase tracking-widest px-10 h-16 rounded-2xl shadow-2xl">
                     Register College
                   </Button>
                 </Link>
