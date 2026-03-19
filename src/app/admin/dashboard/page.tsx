@@ -23,9 +23,9 @@ import { useAuth } from '@/context/AuthContext';
 
 // Mock stats for dashboard (since specific stats API not provided yet)
 const MOCK_STATS = [
-  { label: 'Total Users', value: '1,250', icon: Users, color: 'indigo' as const, trend: { value: 12, isUp: true } },
-  { label: 'Total Colleges', value: '45', icon: GraduationCap, color: 'emerald' as const, trend: { value: 8, isUp: true } },
-  { label: 'Total Events', value: '312', icon: Calendar, color: 'amber' as const, trend: { value: 5, isUp: false } },
+  { label: 'Total Users', value: '5', icon: Users, color: 'indigo' as const, trend: { value: 12, isUp: true } },
+  { label: 'Total Colleges', value: '4', icon: GraduationCap, color: 'emerald' as const, trend: { value: 8, isUp: true } },
+  { label: 'Total Events', value: '4', icon: Calendar, color: 'amber' as const, trend: { value: 5, isUp: false } },
 ];
 
 export default function AdminDashboardPage() {
