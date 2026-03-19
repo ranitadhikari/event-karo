@@ -1,4 +1,4 @@
-export const formatDate = (date: string) => {
+export const formatDate = (date: string | Date | number) => {
   return new Intl.DateTimeFormat('en-IN', {
     day: 'numeric',
     month: 'short',

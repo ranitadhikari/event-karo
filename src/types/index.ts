@@ -6,6 +6,7 @@ export interface User {
   name: string;
   role: UserRole;
   collegeId?: string;
+  avatar?: string;
 }
 
 export interface AuthState {

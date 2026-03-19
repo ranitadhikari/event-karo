@@ -1,0 +1,33 @@
+
+> event-karo@0.1.0 build
+> next build
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of D:\projects\Anti\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * D:\projects\Anti\event-karo\package-lock.json
+
+▲ Next.js 16.1.7 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 4.4s
+  Running TypeScript ...
+Failed to compile.
+
+./src/app/college/events/manage/page.tsx:135:33
+Type error: Type '(value: string) => void' is not assignable to type '(value: string | null, eventDetails: SelectRootChangeEventDetails) => void'.
+  Types of parameters 'value' and 'value' are incompatible.
+    Type 'string | null' is not assignable to type 'string'.
+      Type 'null' is not assignable to type 'string'.
+
+[0m [90m 133 |[39m                       [33m<[39m[33mdiv[39m className[33m=[39m[32m"space-y-2"[39m[33m>[39m
+ [90m 134 |[39m                         [33m<[39m[33mLabel[39m htmlFor[33m=[39m[32m"category"[39m className[33m=[39m[32m"text-sm font-bold text-gray-700"[39m[33m>[39m[33mCategory[39m[33m<[39m[33m/[39m[33mLabel[39m[33m>[39m
+[31m[1m>[22m[39m[90m 135 |[39m                         [33m<[39m[33mSelect[39m onValueChange[33m=[39m{handleCategoryChange} value[33m=[39m{formData[33m.[39mcategory}[33m>[39m
+ [90m     |[39m                                 [31m[1m^[22m[39m
+ [90m 136 |[39m                           [33m<[39m[33mSelectTrigger[39m className[33m=[39m[32m"h-10 rounded-lg"[39m[33m>[39m
+ [90m 137 |[39m                             [33m<[39m[33mSelectValue[39m placeholder[33m=[39m[32m"Select event category"[39m [33m/[39m[33m>[39m
+ [90m 138 |[39m                           [33m<[39m[33m/[39m[33mSelectTrigger[39m[33m>[39m[0m
+Next.js build worker exited with code: 1 and signal: null

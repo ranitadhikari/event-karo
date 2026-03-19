@@ -98,7 +98,7 @@ export const CollegeNavbar: React.FC<CollegeNavbarProps> = ({
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 mt-2 rounded-xl shadow-xl border-slate-200" align="end" forceMount>
+              <DropdownMenuContent className="w-56 mt-2 rounded-xl shadow-xl border-slate-200" align="end">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-semibold leading-none text-slate-900">{user?.name}</p>

@@ -146,7 +146,7 @@ const PARTICIPATING_COLLEGES = [
     state: 'Haryana',
     country: 'India',
     description: 'A premier educational institution in Gurugram, Haryana, dedicated to excellence in teaching and research.',
-    status: 'APPROVED' as const,
+    status: 'approved' as const,
   },
   {
     id: 'c1',
@@ -155,7 +155,7 @@ const PARTICIPATING_COLLEGES = [
     city: 'Delhi',
     country: 'India',
     description: 'One of the oldest and most prestigious engineering colleges in India.',
-    status: 'APPROVED' as const,
+    status: 'approved' as const,
   },
   {
     id: 'c2',
@@ -164,7 +164,7 @@ const PARTICIPATING_COLLEGES = [
     city: 'Delhi',
     country: 'India',
     description: 'A premier institution for higher education for women in India.',
-    status: 'APPROVED' as const,
+    status: 'approved' as const,
   },
   {
     id: 'c6',
@@ -173,7 +173,7 @@ const PARTICIPATING_COLLEGES = [
     city: 'Mumbai',
     country: 'India',
     description: 'The top engineering institute in Mumbai.',
-    status: 'APPROVED' as const,
+    status: 'approved' as const,
   }
 ];
 

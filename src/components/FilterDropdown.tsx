@@ -16,7 +16,7 @@ interface FilterDropdownProps {
 
 export const FilterDropdown: React.FC<FilterDropdownProps> = ({ options, selectedValue, onChange }) => {
   return (
-    <Select value={selectedValue} onValueChange={onChange}>
+    <Select value={selectedValue} onValueChange={(val) => onChange(val ?? '')}>
       <SelectTrigger className="h-14 min-w-[180px] bg-white/5 border-white/10 rounded-2xl px-6 text-white focus:ring-primary/10 focus:border-primary/50 transition-all font-bold uppercase tracking-widest text-xs">
         <div className="flex items-center gap-3">
           <Filter className="h-4 w-4 text-primary" />

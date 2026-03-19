@@ -21,7 +21,8 @@ import {
   Info,
   ShieldCheck,
   MessageSquare,
-  Sparkles
+  Sparkles,
+  Trophy
 } from 'lucide-react';
 import { College, Event } from '@/types';
 import { motion } from 'framer-motion';
@@ -36,7 +37,7 @@ const MOCK_COLLEGES_DATA: Record<string, College & { recentEvents: Event[] }> = 
     state: 'Haryana',
     country: 'India',
     description: 'SGT University is a premier educational institution in Gurugram, Haryana, dedicated to excellence in teaching and research across various disciplines including Medicine, Engineering, Law, and Management.',
-    status: 'APPROVED',
+    status: 'approved',
     website: 'https://sgtuniversity.ac.in',
     address: 'SGT University, Budhera, Gurugram-Badli Road, Gurugram, 122505',
     phone: '1800-102-5661',
@@ -69,7 +70,7 @@ const MOCK_COLLEGES_DATA: Record<string, College & { recentEvents: Event[] }> = 
     state: 'Delhi',
     country: 'India',
     description: 'Delhi Technological University (DTU), formerly known as Delhi College of Engineering (DCE), is a premier government university located in New Delhi, India.',
-    status: 'APPROVED',
+    status: 'approved',
     website: 'https://www.dtu.ac.in',
     address: 'Shahbad Daulatpur, Main Bawana Road, Delhi, 110042',
     phone: '011-27871018',

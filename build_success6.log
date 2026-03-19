@@ -1,0 +1,31 @@
+
+> event-karo@0.1.0 build
+> next build
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of D:\projects\Anti\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * D:\projects\Anti\event-karo\package-lock.json
+
+▲ Next.js 16.1.7 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 4.5s
+  Running TypeScript ...
+Failed to compile.
+
+./src/components/college/CollegeEventCard.tsx:93:35
+Type error: Argument of type 'string | Date' is not assignable to parameter of type 'string'.
+  Type 'Date' is not assignable to type 'string'.
+
+[0m [90m 91 |[39m               [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex items-center gap-1"[39m[33m>[39m
+ [90m 92 |[39m                 [33m<[39m[33mCalendar[39m className[33m=[39m[32m"h-3.5 w-3.5 text-blue-500"[39m [33m/[39m[33m>[39m
+[31m[1m>[22m[39m[90m 93 |[39m                 [33m<[39m[33mspan[39m[33m>[39m{formatDate(event[33m.[39mdate)}[33m<[39m[33m/[39m[33mspan[39m[33m>[39m
+ [90m    |[39m                                   [31m[1m^[22m[39m
+ [90m 94 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 95 |[39m               [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex items-center gap-1"[39m[33m>[39m
+ [90m 96 |[39m                 [33m<[39m[33mUsers[39m className[33m=[39m[32m"h-3.5 w-3.5 text-green-500"[39m [33m/[39m[33m>[39m[0m
+Next.js build worker exited with code: 1 and signal: null

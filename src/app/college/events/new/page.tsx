@@ -39,8 +39,8 @@ export default function CreateEvent() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleTypeChange = (value: string) => {
-    setFormData(prev => ({ ...prev, type: value }));
+  const handleTypeChange = (value: string | null) => {
+    setFormData(prev => ({ ...prev, type: value ?? '' }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

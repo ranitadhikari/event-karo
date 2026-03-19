@@ -1,0 +1,33 @@
+
+> event-karo@0.1.0 build
+> next build
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of D:\projects\Anti\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * D:\projects\Anti\event-karo\package-lock.json
+
+▲ Next.js 16.1.7 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 4.1s
+  Running TypeScript ...
+Failed to compile.
+
+./src/app/colleges/page.tsx:146:48
+Type error: Type '(city: string) => void' is not assignable to type '(value: string | null, eventDetails: SelectRootChangeEventDetails) => void'.
+  Types of parameters 'city' and 'value' are incompatible.
+    Type 'string | null' is not assignable to type 'string'.
+      Type 'null' is not assignable to type 'string'.
+
+[0m [90m 144 |[39m               [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex flex-wrap gap-4"[39m[33m>[39m
+ [90m 145 |[39m                 [33m<[39m[33mdiv[39m className[33m=[39m[32m"w-full md:w-48"[39m[33m>[39m
+[31m[1m>[22m[39m[90m 146 |[39m                   [33m<[39m[33mSelect[39m value[33m=[39m{selectedCity} onValueChange[33m=[39m{setSelectedCity}[33m>[39m
+ [90m     |[39m                                                [31m[1m^[22m[39m
+ [90m 147 |[39m                     [33m<[39m[33mSelectTrigger[39m className[33m=[39m[32m"h-14 bg-white/5 border-white/10 text-white rounded-2xl"[39m[33m>[39m
+ [90m 148 |[39m                       [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex items-center gap-2"[39m[33m>[39m
+ [90m 149 |[39m                         [33m<[39m[33mMapPin[39m className[33m=[39m[32m"h-4 w-4 text-slate-500"[39m [33m/[39m[33m>[39m[0m
+Next.js build worker exited with code: 1 and signal: null

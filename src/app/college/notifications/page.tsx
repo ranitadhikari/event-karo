@@ -41,8 +41,8 @@ export default function NotificationsPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleEventChange = (value: string) => {
-    setFormData(prev => ({ ...prev, targetEvent: value }));
+  const handleEventChange = (value: string | null) => {
+    setFormData(prev => ({ ...prev, targetEvent: value ?? '' }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

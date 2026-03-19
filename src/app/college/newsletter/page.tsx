@@ -43,8 +43,8 @@ export default function NewsletterPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleRecipientChange = (value: string) => {
-    setFormData(prev => ({ ...prev, recipientGroup: value }));
+  const handleRecipientChange = (value: string | null) => {
+    setFormData(prev => ({ ...prev, recipientGroup: value ?? '' }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

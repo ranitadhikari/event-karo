@@ -1,0 +1,30 @@
+
+> event-karo@0.1.0 build
+> next build
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of D:\projects\Anti\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * D:\projects\Anti\event-karo\package-lock.json
+
+▲ Next.js 16.1.7 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 4.2s
+  Running TypeScript ...
+Failed to compile.
+
+./src/components/college/CollegeNavbar.tsx:94:45
+Type error: Property 'avatar' does not exist on type 'User'.
+
+[0m [90m 92 |[39m                 [33m<[39m[33mButton[39m variant[33m=[39m[32m"ghost"[39m className[33m=[39m[32m"relative h-9 w-9 rounded-full p-0 border border-gray-200"[39m[33m>[39m
+ [90m 93 |[39m                   [33m<[39m[33mAvatar[39m className[33m=[39m[32m"h-full w-full"[39m[33m>[39m
+[31m[1m>[22m[39m[90m 94 |[39m                     [33m<[39m[33mAvatarImage[39m src[33m=[39m{user[33m?[39m[33m.[39mavatar} alt[33m=[39m{user[33m?[39m[33m.[39mname} [33m/[39m[33m>[39m
+ [90m    |[39m                                             [31m[1m^[22m[39m
+ [90m 95 |[39m                     [33m<[39m[33mAvatarFallback[39m className[33m=[39m[32m"bg-blue-50 text-blue-700 font-semibold text-xs"[39m[33m>[39m
+ [90m 96 |[39m                       {user[33m?[39m[33m.[39mname[33m?[39m[33m.[39mcharAt([35m0[39m)[33m.[39mtoUpperCase() [33m||[39m [32m'CA'[39m}
+ [90m 97 |[39m                     [33m<[39m[33m/[39m[33mAvatarFallback[39m[33m>[39m[0m
+Next.js build worker exited with code: 1 and signal: null

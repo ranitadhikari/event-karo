@@ -46,8 +46,8 @@ export default function EventManagement() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleCategoryChange = (value: string) => {
-    setFormData(prev => ({ ...prev, category: value }));
+  const handleCategoryChange = (value: string | null) => {
+    setFormData(prev => ({ ...prev, category: value ?? '' }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

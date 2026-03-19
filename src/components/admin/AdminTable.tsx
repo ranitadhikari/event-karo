@@ -25,7 +25,7 @@ interface AdminTableProps<T> {
   className?: string;
 }
 
-export function AdminTable<T extends { id: string | number }>({
+export function AdminTable<T extends Record<string, any>>({
   columns,
   data,
   isLoading = false,
@@ -78,9 +78,9 @@ export function AdminTable<T extends { id: string | number }>({
               </TableCell>
             </TableRow>
           ) : (
-            data.map((item) => (
+            data.map((item, index) => (
               <TableRow 
-                key={item.id} 
+                key={(item as any).id || (item as any)._id || index} 
                 className="group border-b border-border hover:bg-accent/50 transition-colors duration-200"
               >
                 {columns.map((column, index) => (

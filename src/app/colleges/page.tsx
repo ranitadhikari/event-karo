@@ -34,7 +34,7 @@ const MOCK_COLLEGES: College[] = [
     city: 'Delhi',
     country: 'India',
     description: 'A premier engineering institution known for its research and technical excellence.',
-    status: 'APPROVED',
+    status: 'approved',
     logo: 'https://upload.wikimedia.org/wikipedia/en/b/b5/DTU%2C_Delhi_official_logo.png'
   },
   {
@@ -44,7 +44,7 @@ const MOCK_COLLEGES: College[] = [
     city: 'Delhi',
     country: 'India',
     description: 'One of India\'s most prestigious liberal arts colleges for women.',
-    status: 'APPROVED',
+    status: 'approved',
   },
   {
     id: 'c6',
@@ -53,7 +53,7 @@ const MOCK_COLLEGES: College[] = [
     city: 'Mumbai',
     country: 'India',
     description: 'A world-class technical university in Mumbai.',
-    status: 'APPROVED',
+    status: 'approved',
   },
   {
     id: 'c7',
@@ -62,7 +62,7 @@ const MOCK_COLLEGES: College[] = [
     city: 'Pune',
     country: 'India',
     description: 'One of the oldest engineering colleges in Asia.',
-    status: 'APPROVED',
+    status: 'approved',
   }
 ];
 
@@ -143,7 +143,7 @@ export default function CollegesPage() {
               {/* Filters & Sorting */}
               <div className="flex flex-wrap gap-4">
                 <div className="w-full md:w-48">
-                  <Select value={selectedCity} onValueChange={setSelectedCity}>
+                  <Select value={selectedCity} onValueChange={(val) => setSelectedCity(val ?? 'All Cities')}>
                     <SelectTrigger className="h-14 bg-white/5 border-white/10 text-white rounded-2xl">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-slate-500" />
@@ -161,7 +161,7 @@ export default function CollegesPage() {
                 </div>
 
                 <div className="w-full md:w-48">
-                  <Select value={sortBy} onValueChange={setSortBy}>
+                  <Select value={sortBy} onValueChange={(val) => setSortBy(val ?? 'name-asc')}>
                     <SelectTrigger className="h-14 bg-white/5 border-white/10 text-white rounded-2xl">
                       <div className="flex items-center gap-2">
                         <ArrowUpDown className="h-4 w-4 text-slate-500" />
