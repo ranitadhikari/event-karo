@@ -5,6 +5,9 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Calendar,
   MapPin,
@@ -17,13 +20,17 @@ import {
   Ticket,
   ChevronRight,
   GraduationCap,
+  X,
+  Phone,
+  Mail,
+  User,
+  MessageSquare,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDate } from '@/utils/formatDate';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { getEventById, PublicEvent } from '@/lib/api';
+import { motion, AnimatePresence } from 'framer-motion';
+import { getEventById, submitEnquiry, PublicEvent } from '@/lib/api';
 
 export default function EventDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -32,8 +39,13 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
   const [event, setEvent] = useState<PublicEvent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [isRegistered, setIsRegistered] = useState(false);
+
+  // Enquiry modal state
+  const [showModal, setShowModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     getEventById(resolvedParams.id)
@@ -45,13 +57,47 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
       .finally(() => setIsLoading(false));
   }, [resolvedParams.id]);
 
-  const handleRegister = () => {
-    setIsRegistering(true);
-    setTimeout(() => {
-      setIsRegistering(false);
-      setIsRegistered(true);
-      toast.success('Successfully registered for ' + event?.title);
-    }, 1500);
+  // Lock body scroll when modal open
+  useEffect(() => {
+    document.body.style.overflow = showModal ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [showModal]);
+
+  const validate = () => {
+    const errors: Record<string, string> = {};
+    if (!form.name.trim()) errors.name = 'Name is required';
+    if (!form.email.trim()) errors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = 'Enter a valid email';
+    return errors;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const errors = validate();
+    if (Object.keys(errors).length) { setFormErrors(errors); return; }
+
+    if (!event) return;
+    setIsSubmitting(true);
+    try {
+      await submitEnquiry({
+        name: form.name,
+        email: form.email,
+        phone: form.phone || undefined,
+        message: form.message || undefined,
+        eventId: event._id,
+      });
+      setSubmitted(true);
+      toast.success('Enquiry submitted! Check your email for confirmation.');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to submit enquiry. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleChange = (field: string, value: string) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+    if (formErrors[field]) setFormErrors(prev => { const e = { ...prev }; delete e[field]; return e; });
   };
 
   const getCollegeName = () => {
@@ -95,7 +141,6 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
 
         {/* ── Hero ── */}
         <section className="relative h-[60vh] md:h-[85vh] w-full overflow-hidden">
-          {/* Blurred bg */}
           <div className="absolute inset-0">
             {poster ? (
               <img src={poster} alt="" className="w-full h-full object-cover blur-3xl opacity-40 scale-110" />
@@ -107,18 +152,13 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
           </div>
 
           <div className="container mx-auto px-6 h-full flex flex-col justify-end pb-12 relative z-10">
-            {/* Back */}
             <div className="mb-8">
-              <button
-                onClick={() => router.back()}
-                className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm font-bold uppercase tracking-widest transition-colors"
-              >
+              <button onClick={() => router.back()} className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm font-bold uppercase tracking-widest transition-colors">
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
             </div>
 
             <div className="flex flex-col md:flex-row gap-12 items-center md:items-end">
-              {/* Poster */}
               {poster && (
                 <motion.div
                   initial={{ y: 50, opacity: 0 }}
@@ -130,28 +170,16 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                 </motion.div>
               )}
 
-              {/* Info */}
-              <motion.div
-                initial={{ x: 30, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.8 }}
-                className="flex-grow space-y-6 text-center md:text-left"
-              >
+              <motion.div initial={{ x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.8 }} className="flex-grow space-y-6 text-center md:text-left">
                 <div className="flex flex-wrap justify-center md:justify-start gap-3">
                   {event.category && (
-                    <Badge className="bg-primary border-primary/30 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
-                      {event.category}
-                    </Badge>
+                    <Badge className="bg-primary border-primary/30 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">{event.category}</Badge>
                   )}
                   <Badge variant="outline" className="bg-white/5 border-white/10 text-slate-300 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
-                    {event.status === 'upcoming' ? '🟢 Registration Open' : event.status}
+                    🟢 Registration Open
                   </Badge>
                 </div>
-
-                <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none uppercase">
-                  {event.title}
-                </h1>
-
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none uppercase">{event.title}</h1>
                 <div className="flex flex-wrap justify-center md:justify-start items-center gap-8 pt-2">
                   <div className="flex items-center gap-4">
                     <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
@@ -162,7 +190,6 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                       <p className="text-xl font-bold text-white">{getCollegeName()}</p>
                     </div>
                   </div>
-
                   <div className="flex items-center gap-4">
                     <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
                       <Calendar className="h-7 w-7 text-primary" />
@@ -172,7 +199,6 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                       <p className="text-xl font-bold text-white">{formatDate(event.eventDate)}</p>
                     </div>
                   </div>
-
                   {getCollegeCity() && (
                     <div className="flex items-center gap-4">
                       <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
@@ -195,10 +221,9 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
 
-              {/* Left: Description + Venue */}
+              {/* Left */}
               <div className="lg:col-span-8 space-y-12">
 
-                {/* About */}
                 {event.description && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
@@ -212,7 +237,6 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                   </div>
                 )}
 
-                {/* Details grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="bg-white/5 border border-white/10 rounded-[32px] p-8 space-y-4">
                     <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
@@ -221,7 +245,6 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                     <h4 className="text-xl font-bold uppercase tracking-tight">Event Date</h4>
                     <p className="text-slate-400 font-medium text-lg">{formatDate(event.eventDate)}</p>
                   </div>
-
                   {event.venue && (
                     <div className="bg-white/5 border border-white/10 rounded-[32px] p-8 space-y-4">
                       <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
@@ -233,7 +256,6 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                   )}
                 </div>
 
-                {/* Location */}
                 <div className="bg-gradient-to-br from-primary/20 to-purple-600/20 border border-primary/20 rounded-[40px] p-10 space-y-6">
                   <h3 className="text-2xl font-black uppercase tracking-tighter">Event Location</h3>
                   <div className="flex items-center gap-6">
@@ -248,7 +270,7 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                 </div>
               </div>
 
-              {/* Right: Sticky action card */}
+              {/* Right: Action card */}
               <div className="lg:col-span-4">
                 <div className="sticky top-32 space-y-8">
                   <div className="bg-white/5 backdrop-blur-3xl border border-primary/30 shadow-[0_0_50px_-10px_rgba(59,130,246,0.3)] rounded-[40px] p-10 shadow-2xl">
@@ -260,33 +282,14 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
                         </span>
                       </div>
 
-                      <div className="space-y-4">
-                        {isRegistered ? (
-                          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-3xl p-8 text-center space-y-4">
-                            <div className="h-16 w-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto">
-                              <CheckCircle2 className="h-8 w-8 text-white" />
-                            </div>
-                            <h5 className="text-2xl font-bold text-emerald-400 uppercase">Registered!</h5>
-                            <p className="text-sm text-slate-400">You're all set for this event.</p>
-                          </div>
-                        ) : (
-                          <Button
-                            size="lg"
-                            onClick={handleRegister}
-                            disabled={isRegistering}
-                            className="w-full bg-primary hover:bg-primary/90 shadow-[0_20px_40px_-10px_rgba(59,130,246,0.5)] text-white font-black uppercase tracking-widest h-20 rounded-[28px] text-xl group"
-                          >
-                            {isRegistering ? (
-                              <Loader2 className="h-8 w-8 animate-spin" />
-                            ) : (
-                              <>
-                                Register Now
-                                <ChevronRight className="h-6 w-6 group-hover:translate-x-1 transition-transform ml-2" />
-                              </>
-                            )}
-                          </Button>
-                        )}
-                      </div>
+                      <Button
+                        size="lg"
+                        onClick={() => setShowModal(true)}
+                        className="w-full bg-primary hover:bg-primary/90 shadow-[0_20px_40px_-10px_rgba(59,130,246,0.5)] text-white font-black uppercase tracking-widest h-20 rounded-[28px] text-xl group"
+                      >
+                        Register Now
+                        <ChevronRight className="h-6 w-6 group-hover:translate-x-1 transition-transform ml-2" />
+                      </Button>
 
                       <div className="pt-2 space-y-3">
                         <p className="text-[10px] uppercase tracking-widest text-slate-500 font-black text-center">Share this event</p>
@@ -309,6 +312,169 @@ export default function EventDetailsPage({ params }: { params: Promise<{ id: str
       </main>
 
       <Footer />
+
+      {/* ── Enquiry Modal ── */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          >
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => { if (!submitted) setShowModal(false); }}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+            />
+
+            {/* Card */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative bg-slate-900 border border-white/10 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden"
+            >
+              {/* Close */}
+              {!submitted && (
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="absolute top-5 right-5 h-9 w-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all z-10"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+
+              {/* Top accent */}
+              <div className="h-1 w-full bg-gradient-to-r from-primary via-blue-400 to-cyan-400" />
+
+              <div className="p-8">
+                {submitted ? (
+                  /* Success state */
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center space-y-6 py-6"
+                  >
+                    <div className="h-20 w-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
+                      <CheckCircle2 className="h-10 w-10 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-black text-white uppercase tracking-tight">Enquiry Submitted!</h3>
+                      <p className="text-slate-400 mt-2 leading-relaxed">
+                        Thank you <span className="text-white font-bold">{form.name}</span>! We've sent a confirmation to <span className="text-primary font-bold">{form.email}</span>. The college admin will contact you shortly.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => { setShowModal(false); setSubmitted(false); setForm({ name: '', email: '', phone: '', message: '' }); }}
+                      className="bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest h-12 px-8 rounded-xl"
+                    >
+                      Close
+                    </Button>
+                  </motion.div>
+                ) : (
+                  /* Form */
+                  <>
+                    <div className="mb-8">
+                      <h2 className="text-2xl font-black text-white uppercase tracking-tight">Register for Event</h2>
+                      <p className="text-slate-400 mt-1 text-sm leading-relaxed">
+                        Fill in your details to register for <span className="text-white font-bold">{event.title}</span>.
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                      {/* Name */}
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                          Full Name <span className="text-red-400">*</span>
+                        </Label>
+                        <div className="relative">
+                          <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                          <Input
+                            value={form.name}
+                            onChange={e => handleChange('name', e.target.value)}
+                            placeholder="Your full name"
+                            className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 rounded-xl focus:ring-primary/50 focus:border-primary"
+                          />
+                        </div>
+                        {formErrors.name && <p className="text-red-400 text-xs font-medium">{formErrors.name}</p>}
+                      </div>
+
+                      {/* Email */}
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                          Email Address <span className="text-red-400">*</span>
+                        </Label>
+                        <div className="relative">
+                          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                          <Input
+                            type="email"
+                            value={form.email}
+                            onChange={e => handleChange('email', e.target.value)}
+                            placeholder="your@email.com"
+                            className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 rounded-xl focus:ring-primary/50 focus:border-primary"
+                          />
+                        </div>
+                        {formErrors.email && <p className="text-red-400 text-xs font-medium">{formErrors.email}</p>}
+                      </div>
+
+                      {/* Phone */}
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-bold uppercase tracking-widest text-slate-400">Phone Number <span className="text-slate-600">(Optional)</span></Label>
+                        <div className="relative">
+                          <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                          <Input
+                            type="tel"
+                            value={form.phone}
+                            onChange={e => handleChange('phone', e.target.value)}
+                            placeholder="+91 XXXXX XXXXX"
+                            className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 rounded-xl focus:ring-primary/50 focus:border-primary"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Message */}
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-bold uppercase tracking-widest text-slate-400">Message <span className="text-slate-600">(Optional)</span></Label>
+                        <div className="relative">
+                          <MessageSquare className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-500" />
+                          <Textarea
+                            value={form.message}
+                            onChange={e => handleChange('message', e.target.value)}
+                            placeholder="Any questions or special requirements..."
+                            rows={3}
+                            className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-slate-600 rounded-xl focus:ring-primary/50 focus:border-primary resize-none"
+                          />
+                        </div>
+                      </div>
+
+                      <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest h-14 rounded-2xl text-base shadow-[0_10px_30px_-5px_rgba(59,130,246,0.4)] group"
+                      >
+                        {isSubmitting ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <>Submit Enquiry <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform ml-1" /></>
+                        )}
+                      </Button>
+
+                      <p className="text-center text-xs text-slate-500">
+                        A confirmation email will be sent to both you and the college admin.
+                      </p>
+                    </form>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

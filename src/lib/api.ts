@@ -60,6 +60,50 @@ export async function getEventById(id: string): Promise<PublicEvent | null> {
   return events.find(e => e._id === id) ?? null;
 }
 
+/** Submit an enquiry for an event */
+export async function submitEnquiry(data: {
+  name: string;
+  email: string;
+  phone?: string;
+  message?: string;
+  eventId: string;
+}): Promise<void> {
+  const res = await fetch(`${BASE_URL}/api/event-registration/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Failed to submit enquiry');
+  }
+}
+
+export interface Enquiry {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  message?: string;
+  createdAt: string;
+}
+
+export interface EventEnquiriesResponse {
+  event: string;
+  college: string;
+  enquiries: Enquiry[];
+}
+
+/** Fetch all enquiries for a specific event (college admin only) */
+export async function getEventEnquiries(eventId: string, token: string): Promise<EventEnquiriesResponse> {
+  const res = await fetch(`${BASE_URL}/api/event-registration/event/${eventId}/enquiries`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error('Failed to fetch enquiries');
+  return res.json();
+}
+
 /** Fetch all events for superadmin (requires auth token) */
 export async function getSuperAdminEvents(token: string): Promise<PublicEvent[]> {
   const res = await fetch(`${BASE_URL}/api/event/admin/all`, {
