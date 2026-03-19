@@ -20,7 +20,7 @@ export const FloatingBanner = () => {
   }, []);
 
   // Don't show on the event page itself or in admin/college dashboards
-  const isExcludedPage = pathname.includes('/event/codesphere-hackathon') || 
+  const isExcludedPage = pathname.includes('/event/69bc2a949cc99df010b12115') || 
                          pathname.includes('/admin') || 
                          pathname.includes('/college/dashboard');
 
@@ -55,7 +55,7 @@ export const FloatingBanner = () => {
               </div>
 
               <div className="flex items-center gap-3">
-                <Link href="/event/codesphere-hackathon">
+                <Link href="/event/69bc2a949cc99df010b12115">
                   <button className="bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest text-[10px] px-5 h-10 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center gap-2 group/btn whitespace-nowrap">
                     Join Now
                     <ArrowRight className="h-3 w-3 group-hover/btn:translate-x-1 transition-transform" />

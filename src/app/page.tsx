@@ -218,7 +218,7 @@ export default function LandingPage() {
                     transition={{ delay: 1.1, duration: 0.8 }}
                     className="flex flex-wrap gap-6 pt-4"
                   >
-                    <Link href={`/event/${featuredEvent.id}`}>
+                    <Link href={`/event/69bc2a949cc99df010b12115`}>
                       <Button size="lg" className="h-16 px-10 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-[0_20px_40px_-10px_rgba(59,130,246,0.5)] flex items-center gap-3 group">
                         Register Now 
                         <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
