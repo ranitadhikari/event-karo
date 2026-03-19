@@ -297,10 +297,19 @@ export default function LandingPage() {
                       {displayEvents[currentSlide]?.description || ''}
                     </p>
 
-                    <div className="flex flex-wrap gap-4 pt-4">
-                      <div className="flex items-center gap-3 px-4 rounded-xl border border-white/10 backdrop-blur-md bg-white/5">
+                    <div className="flex flex-wrap gap-6 pt-6">
+                      <Link href={`/event/${displayEvents[currentSlide]?._id}`}>
+                        <Button className="bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] rounded-xl px-8 h-14 flex items-center gap-3 group shadow-lg shadow-primary/20">
+                          Register Now
+                          <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </Link>
+                      
+                      <div className="flex items-center gap-3 px-5 rounded-xl border border-white/10 backdrop-blur-md bg-white/5">
                         <Calendar className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-bold uppercase tracking-widest">{formatDate(displayEvents[currentSlide]?.eventDate)}</span>
+                        <span className="text-sm font-bold uppercase tracking-widest text-slate-200">
+                          {formatDate(displayEvents[currentSlide]?.eventDate)}
+                        </span>
                       </div>
                     </div>
                   </motion.div>
