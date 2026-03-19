@@ -26,108 +26,21 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from '@/context/LocationContext';
+import { getColleges, getAllEvents, PublicEvent, PublicCollege } from '@/lib/api';
 
-// Mock data with posters for cinematic look
-const FEATURED_EVENTS = [
-  {
-    id: 'codesphere-hackathon',
-    title: 'CodeSphere Hackathon',
-    tagline: 'Think • Build • Ship',
-    description: 'A premium 36-hour hackathon where developers, designers, and innovators come together to build cutting-edge solutions.',
-    eventDate: '2026-03-18',
-    lastRegistrationDate: '2026-03-05',
-    collegeId: 'sgt-university',
-    collegeName: 'SGT University',
-    city: 'Gurugram',
-    state: 'Haryana',
-    type: 'Hackathon',
-    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773847448/WhatsApp_Image_2026-03-18_at_8.49.46_PM_n6833k.jpg', // Placeholder
-    prizePool: '₹1.5 Lakh',
-    isFeatured: true,
-  },
-  {
-    id: '1',
-    title: 'CodeFest 2026',
-    description: 'A 24-hour hackathon to build innovative solutions for urban problems.',
-    eventDate: '2026-04-15',
-    lastRegistrationDate: '2026-04-10',
-    collegeId: 'c1',
-    collegeName: 'DTU',
-    city: 'Delhi',
-    country: 'India',
-    type: 'Hackathon',
-    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773907689/WhatsApp_Image_2026-03-18_at_8.49.39_PM_lzvxo4.jpg'
-  },
-  {
-    id: '2',
-    title: 'Cultural Fest: Tarang',
-    description: 'The annual cultural festival featuring music, dance, and arts.',
-    eventDate: '2026-05-20',
-    lastRegistrationDate: '2026-05-15',
-    collegeId: 'c2',
-    collegeName: 'LSR',
-    city: 'Delhi',
-    country: 'India',
-    type: 'Cultural',
-    poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773907412/WhatsApp_Image_2026-03-18_at_3.25.39_PM_nbmlu2.jpg'
-  },
-  {
-    id: '3',
-    title: 'Marketing Summit',
-    description: 'Learn from industry experts about the latest trends in digital marketing and branding.',
-    eventDate: '2026-04-25',
-    lastRegistrationDate: '2026-04-20',
-    collegeId: 'c3',
-    collegeName: 'SRCC',
-    city: 'Delhi',
-    country: 'India',
-    type: 'Academic',
-    poster: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&q=80&w=1000'
-  },
-  {
-    id: '6',
-    title: 'TechX Mumbai',
-    description: 'The biggest tech conference in Mumbai.',
-    eventDate: '2026-07-10',
-    lastRegistrationDate: '2026-07-01',
-    collegeId: 'c6',
-    collegeName: 'IIT Bombay',
-    city: 'Mumbai',
-    country: 'India',
-    type: 'Technical',
-    poster: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1000'
-  }
-];
-
-const TRENDING_EVENTS = [
-  ...FEATURED_EVENTS,
-  {
-    id: '4',
-    title: 'RoboWars 2.0',
-    description: 'The ultimate battle of machines.',
-    eventDate: '2026-06-10',
-    lastRegistrationDate: '2026-06-05',
-    collegeId: 'c1',
-    collegeName: 'DTU',
-    city: 'Delhi',
-    country: 'India',
-    type: 'Technical',
-    poster: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=1000'
-  },
-  {
-    id: '7',
-    title: 'Pune Design Week',
-    description: 'Exploring the future of design and creativity.',
-    eventDate: '2026-08-15',
-    lastRegistrationDate: '2026-08-10',
-    collegeId: 'c7',
-    collegeName: 'COEP',
-    city: 'Pune',
-    country: 'India',
-    type: 'Workshop',
-    poster: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1000'
-  }
-];
+// ── Static hero banner (pinned featured event) ─────────────────────────────
+const HERO_EVENT = {
+  id: 'codesphere-hackathon',
+  title: 'CodeSphere Hackathon',
+  tagline: 'Think • Build • Ship',
+  description: 'A premium 36-hour hackathon where developers, designers, and innovators come together to build cutting-edge solutions.',
+  eventDate: '2026-03-18',
+  lastRegistrationDate: '2026-03-05',
+  collegeName: 'SGT University',
+  city: 'Gurugram',
+  poster: 'https://res.cloudinary.com/dwserksvu/image/upload/v1773847448/WhatsApp_Image_2026-03-18_at_8.49.46_PM_n6833k.jpg',
+  prizePool: '₹1.5 Lakh',
+};
 
 const CATEGORIES = [
   { name: 'Hackathons', icon: Code, color: 'from-blue-600 to-cyan-500' },
@@ -135,46 +48,6 @@ const CATEGORIES = [
   { name: 'Tech Talks', icon: Lightbulb, color: 'from-purple-600 to-pink-500' },
   { name: 'Cultural Fest', icon: Music, color: 'from-rose-500 to-red-600' },
   { name: 'Competitions', icon: Trophy, color: 'from-emerald-500 to-teal-600' },
-];
-
-const PARTICIPATING_COLLEGES = [
-  {
-    id: 'sgt-university',
-    name: 'SGT University',
-    email: 'admin@sgtuniversity.ac.in',
-    city: 'Gurugram',
-    state: 'Haryana',
-    country: 'India',
-    description: 'A premier educational institution in Gurugram, Haryana, dedicated to excellence in teaching and research.',
-    status: 'approved' as const,
-  },
-  {
-    id: 'c1',
-    name: 'Delhi Technological University',
-    email: 'admin@dtu.ac.in',
-    city: 'Delhi',
-    country: 'India',
-    description: 'One of the oldest and most prestigious engineering colleges in India.',
-    status: 'approved' as const,
-  },
-  {
-    id: 'c2',
-    name: 'Lady Shri Ram College',
-    email: 'admin@lsr.edu.in',
-    city: 'Delhi',
-    country: 'India',
-    description: 'A premier institution for higher education for women in India.',
-    status: 'approved' as const,
-  },
-  {
-    id: 'c6',
-    name: 'IIT Bombay',
-    email: 'admin@iitb.ac.in',
-    city: 'Mumbai',
-    country: 'India',
-    description: 'The top engineering institute in Mumbai.',
-    status: 'approved' as const,
-  }
 ];
 
 const formatDate = (dateString: string) => {
@@ -185,18 +58,65 @@ const formatDate = (dateString: string) => {
   });
 };
 
+// Helper: convert PublicEvent → EventCard format
+const toEventCardShape = (ev: PublicEvent) => ({
+  id: ev._id,
+  title: ev.title,
+  description: ev.description || '',
+  eventDate: ev.eventDate,
+  lastRegistrationDate: '',
+  collegeId: typeof ev.college === 'object' ? (ev.college?._id || '') : (ev.college || ''),
+  collegeName: typeof ev.college === 'object' ? (ev.college?.name || 'EventKaro') : 'EventKaro',
+  city: ev.city || (typeof ev.college === 'object' ? ev.college?.city || '' : ''),
+  type: ev.category || 'Event',
+  poster: ev.posters && ev.posters.length > 0 ? ev.posters[0] : undefined,
+});
+
+// Helper: convert PublicCollege → CollegeCard format  
+const toCollegeCardShape = (c: PublicCollege) => ({
+  id: c._id,
+  name: c.name,
+  email: c.email || '',
+  city: c.city,
+  country: 'India',
+  description: c.description,
+  status: 'approved' as const,
+  logo: c.logo,
+});
+
 export default function LandingPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { selectedCity } = useLocation();
+  const [dynamicEvents, setDynamicEvents] = useState<PublicEvent[]>([]);
+  const [dynamicColleges, setDynamicColleges] = useState<PublicCollege[]>([]);
 
-  const featuredEvent = FEATURED_EVENTS.find(e => e.id === 'codesphere-hackathon');
-  const otherFeaturedEvents = FEATURED_EVENTS.filter(e => e.id !== 'codesphere-hackathon');
+  // Fetch events and colleges on mount
+  useEffect(() => {
+    getAllEvents().then(setDynamicEvents).catch(() => {});
+    getColleges().then(setDynamicColleges).catch(() => {});
+  }, []);
 
-  const filteredFeaturedEvents = selectedCity === 'All Cities' 
-    ? otherFeaturedEvents 
-    : otherFeaturedEvents.filter(e => e.city === selectedCity);
+  // Carousel events: use API data if available, else empty
+  const carouselEvents = dynamicEvents.slice(0, 6);
 
-  const displayEvents = filteredFeaturedEvents.length > 0 ? filteredFeaturedEvents : otherFeaturedEvents;
+  const filteredCarousel = selectedCity === 'All Cities'
+    ? carouselEvents
+    : carouselEvents.filter(e => e.city === selectedCity);
+
+  const displayEvents = filteredCarousel.length > 0 ? filteredCarousel : carouselEvents;
+
+  // Trending: first 8 API events (city filtered)
+  const trendingEvents = (selectedCity === 'All Cities'
+    ? dynamicEvents
+    : dynamicEvents.filter(e => {
+        const city = e.city || (typeof e.college === 'object' ? e.college?.city : '');
+        return city === selectedCity;
+      })
+  ).slice(0, 8);
+
+  const featuredColleges = dynamicColleges.slice(0, 4);
+
+  const featuredEvent = HERO_EVENT;
 
   // Reset slide index when displayEvents changes to avoid out-of-bounds error
   useEffect(() => {
@@ -216,7 +136,7 @@ export default function LandingPage() {
       <Navbar />
       
       <main className="flex-grow">
-        {/* 0. Main Featured Event Hero (CodeSphere) */}
+        {/* 0. Main Featured Event Hero */}
         {featuredEvent && (
           <section className="relative h-[90vh] w-full overflow-hidden">
             <motion.div
@@ -225,7 +145,6 @@ export default function LandingPage() {
               transition={{ duration: 1.5 }}
               className="absolute inset-0"
             >
-              {/* Poster Background with Zoom Effect */}
               <motion.img 
                 src={featuredEvent.poster} 
                 alt={featuredEvent.title}
@@ -235,12 +154,10 @@ export default function LandingPage() {
                 className="h-full w-full object-cover"
               />
               
-              {/* Dark Gradient Overlays */}
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
               <div className="absolute inset-0 bg-slate-950/20" />
               
-              {/* Content */}
               <div className="absolute inset-0 container mx-auto px-6 flex flex-col justify-center">
                 <div className="max-w-4xl space-y-8">
                   <motion.div 
@@ -250,8 +167,6 @@ export default function LandingPage() {
                     className="space-y-4"
                   >
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500/20 border border-amber-500/30 rounded-full text-amber-500 font-black text-[10px] uppercase tracking-[0.2em] backdrop-blur-md shadow-[0_0_20px_rgba(245,158,11,0.2)]">
-                      {/* <Sparkles className="h-3.5 w-3.5 fill-current" /> */}
-                      {/* <span>🔥 Featured Event</span> */}
                     </div>
                     
                     <div className="space-y-2">
@@ -322,8 +237,8 @@ export default function LandingPage() {
           </section>
         )}
 
-        {/* 1. Hero Banner Carousel Section (Existing Featured Events) */}
-        {displayEvents.length > 0 && displayEvents[currentSlide] && (
+        {/* 1. Hero Banner Carousel Section — Dynamic Events */}
+        {displayEvents.length > 0 && (
           <section className="relative h-[60vh] w-full overflow-hidden border-t border-white/5">
             <AnimatePresence mode="wait">
               <motion.div
@@ -336,15 +251,13 @@ export default function LandingPage() {
               >
                 {/* Poster Background */}
                 <img 
-                  src={displayEvents[currentSlide].poster} 
-                  alt={displayEvents[currentSlide].title}
+                  src={displayEvents[currentSlide]?.posters?.[0] || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1600'} 
+                  alt={displayEvents[currentSlide]?.title}
                   className="h-full w-full object-cover scale-105"
                 />
-                {/* Cinematic Overlays */}
                 <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
                 
-                {/* Content */}
                 <div className="absolute inset-0 container mx-auto px-6 flex flex-col justify-center">
                   <motion.div 
                     initial={{ y: 30, opacity: 0 }}
@@ -354,31 +267,26 @@ export default function LandingPage() {
                   >
                     <div className="flex items-center gap-3">
                       <Badge className="bg-primary/20 text-primary border-primary/30 px-3 py-1 text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm">
-                        {displayEvents[currentSlide].type}
+                        {displayEvents[currentSlide]?.category || 'Event'}
                       </Badge>
                       <div className="flex items-center text-slate-400 text-xs font-bold uppercase tracking-widest">
                         <MapPin className="h-3.5 w-3.5 mr-1.5 text-primary" />
-                        {displayEvents[currentSlide].city}
+                        {displayEvents[currentSlide]?.city || ''}
                       </div>
                     </div>
                     
                     <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-[1.1] md:leading-none">
-                      {displayEvents[currentSlide].title}
+                      {displayEvents[currentSlide]?.title}
                     </h2>
                     
                     <p className="text-base md:text-lg text-slate-300 font-medium max-w-xl leading-relaxed">
-                      {displayEvents[currentSlide].description}
+                      {displayEvents[currentSlide]?.description || ''}
                     </p>
 
                     <div className="flex flex-wrap gap-4 pt-4">
-                      <Link href={`/event/${displayEvents[currentSlide].id}`}>
-                        <Button className="bg-white text-slate-950 hover:bg-slate-200 font-bold uppercase tracking-widest px-8 h-12 rounded-xl">
-                          View Details
-                        </Button>
-                      </Link>
                       <div className="flex items-center gap-3 px-4 rounded-xl border border-white/10 backdrop-blur-md bg-white/5">
                         <Calendar className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-bold uppercase tracking-widest">{formatDate(displayEvents[currentSlide].eventDate)}</span>
+                        <span className="text-sm font-bold uppercase tracking-widest">{formatDate(displayEvents[currentSlide]?.eventDate)}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -438,13 +346,16 @@ export default function LandingPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {(selectedCity === 'All Cities' 
-                ? TRENDING_EVENTS 
-                : TRENDING_EVENTS.filter(e => e.city === selectedCity)
-              ).map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </div>
+              {trendingEvents.length > 0 ? (
+                trendingEvents.map(ev => (
+                  <EventCard key={ev._id} event={toEventCardShape(ev)} />
+                ))
+              ) : (
+                <div className="col-span-4 text-center py-12 text-slate-500 font-medium">
+                  {dynamicEvents.length === 0 ? 'Loading events...' : 'No events found for this city.'}
+                </div>
+              )}
+          </div>
           </div>
         </section>
 
@@ -487,9 +398,13 @@ export default function LandingPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {PARTICIPATING_COLLEGES.map((college) => (
-                <CollegeCard key={college.id} college={college as any} />
-              ))}
+              {featuredColleges.length > 0 ? (
+                featuredColleges.map(college => (
+                  <CollegeCard key={college._id} college={toCollegeCardShape(college)} />
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-12 text-slate-500 font-medium">Loading colleges...</div>
+              )}
             </div>
             
             <div className="mt-16 text-center">
