@@ -11,7 +11,10 @@ import { College } from '@/types';
 import { Check, X, Clock, MapPin, Mail, Info } from 'lucide-react';
 import axios from 'axios';
 
+import { useAuth } from '@/context/AuthContext';
+
 export default function CollegeRequestsPage() {
+  const { token } = useAuth();
   const [requests, setRequests] = useState<College[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCollege, setSelectedCollege] = useState<College | null>(null);
@@ -19,48 +22,25 @@ export default function CollegeRequestsPage() {
   const [isActionLoading, setIsActionLoading] = useState(false);
 
   useEffect(() => {
-    fetchRequests();
-  }, []);
+    if (token) {
+      fetchRequests();
+    }
+  }, [token]);
 
   const fetchRequests = async () => {
     try {
       setIsLoading(true);
-      // Simulate API call: GET /api/superadmin/pending
-      // const response = await axios.get('/api/superadmin/pending');
-      // setRequests(response.data);
-      
-      // Mock data
-      setTimeout(() => {
-        setRequests([
-          {
-            id: 'c4',
-            name: 'Hansraj College',
-            email: 'admin@hansraj.du.ac.in',
-            city: 'North Campus',
-            description: 'A constituent college of the University of Delhi.',
-            status: 'PENDING',
-          },
-          {
-            id: 'c5',
-            name: 'Netaji Subhas University of Technology',
-            email: 'registrar@nsut.ac.in',
-            city: 'Dwarka',
-            description: 'A state university located in Dwarka, New Delhi.',
-            status: 'PENDING',
-          },
-          {
-            id: 'c6',
-            name: 'Miranda House',
-            email: 'principal@mirandahouse.ac.in',
-            city: 'North Campus',
-            description: 'A constituent college for women at the University of Delhi.',
-            status: 'PENDING',
-          }
-        ]);
-        setIsLoading(false);
-      }, 800);
-    } catch (error) {
-      toast.error('Failed to load pending requests');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/superadmin/pending`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch');
+      setRequests(data);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to load pending requests');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -71,23 +51,24 @@ export default function CollegeRequestsPage() {
     setIsActionLoading(true);
     try {
       const endpoint = modalType === 'approve' 
-        ? `/api/superadmin/approve/${selectedCollege.id}`
-        : `/api/superadmin/reject/${selectedCollege.id}`;
+        ? `${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/superadmin/approve/${selectedCollege.id || (selectedCollege as any)._id}`
+        : `${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/superadmin/reject/${selectedCollege.id || (selectedCollege as any)._id}`;
       
-      // Simulate API call: PATCH endpoint
-      // await axios.patch(endpoint);
-      
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+      const response = await fetch(endpoint, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-      setRequests(prev => prev.filter(c => c.id !== selectedCollege.id));
-      toast.success(
-        modalType === 'approve' 
-          ? `${selectedCollege.name} has been approved!` 
-          : `${selectedCollege.name} has been rejected.`
-      );
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Action failed');
+
+      setRequests(prev => prev.filter(c => (c.id || (c as any)._id) !== (selectedCollege.id || (selectedCollege as any)._id)));
+      toast.success(data.message || (modalType === 'approve' ? 'College Approved' : 'College Rejected'));
       closeModal();
-    } catch (error) {
-      toast.error(`Failed to ${modalType} college`);
+    } catch (error: any) {
+      toast.error(error.message || `Failed to ${modalType} college`);
     } finally {
       setIsActionLoading(false);
     }

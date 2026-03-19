@@ -20,39 +20,41 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // Mock validation
-      if (email === 'admin@eventkaro.com' && password === 'Admin@2026') {
-        login('mock-jwt-token-superadmin', {
-          id: '1',
-          email: 'admin@eventkaro.com',
-          name: 'Super Admin',
-          role: 'SUPER_ADMIN',
-        });
-        toast.success('Welcome back, Super Admin!');
-      } else if (email === 'admin@dtu.ac.in' && password === 'dtu123') {
-        login('mock-jwt-token-collegeadmin', {
-          id: '2',
-          email: 'admin@dtu.ac.in',
-          name: 'DTU Admin',
-          role: 'COLLEGE_ADMIN',
-          collegeId: 'c1',
-        });
-        toast.success('Welcome back, DTU Administrator!');
-      } else if (email === 'student@gmail.com' && password === 'student123') {
-        login('mock-jwt-token-student', {
-          id: '3',
-          email: 'student@gmail.com',
-          name: 'Rahul Sharma',
-          role: 'STUDENT',
-        });
-        toast.success('Welcome back, Rahul!');
-      } else {
-        toast.error('Invalid email or password. Try the demo credentials in the sidebar.');
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong');
       }
+
+      // Backend returns: { message, token, role }
+      // The token contains id, role, and collegeId. 
+      // For simplicity, we can extract common info or just use what we have.
+      // Ideally, the backend should return the user object. 
+      // For now, let's construct a minimal User object to satisfy AuthContext.
+      
+      const user = {
+        id: '', // We don't have the ID directly unless we decode the token
+        email,
+        name: email.split('@')[0], // Placeholder name
+        role: data.role as any, // 'superadmin' | 'collegeadmin' | 'student'
+      };
+
+      login(data.token, user);
+      toast.success(data.message || 'Login successful!');
+    } catch (err: any) {
+      toast.error(err.message || 'Invalid email or password');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

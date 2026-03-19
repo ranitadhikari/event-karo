@@ -21,7 +21,7 @@ export const CollegeLayout: React.FC<CollegeLayoutProps> = ({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <ProtectedRoute allowedRoles={['COLLEGE_ADMIN']}>
+    <ProtectedRoute allowedRoles={['collegeadmin']}>
       <div className="flex min-h-screen bg-gray-50 overflow-hidden font-sans selection:bg-blue-100 selection:text-blue-900">
         {/* LEFT SIDE: FIXED SIDEBAR */}
         <CollegeSidebar 

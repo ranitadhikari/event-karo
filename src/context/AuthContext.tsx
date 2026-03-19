@@ -46,13 +46,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Redirect based on role
     switch (newUser.role) {
-      case 'SUPER_ADMIN':
+      case 'superadmin':
         router.push('/admin/dashboard');
         break;
-      case 'COLLEGE_ADMIN':
+      case 'collegeadmin':
         router.push('/college/dashboard');
         break;
-      case 'STUDENT':
+      case 'student':
         router.push('/student/dashboard');
         break;
       default:

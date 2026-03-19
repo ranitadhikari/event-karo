@@ -21,13 +21,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
       } else if (allowedRoles && user && !allowedRoles.includes(user.role)) {
         // User role not authorized for this route
         switch (user.role) {
-          case 'SUPER_ADMIN':
+          case 'superadmin':
             router.push('/admin/dashboard');
             break;
-          case 'COLLEGE_ADMIN':
+          case 'collegeadmin':
             router.push('/college/dashboard');
             break;
-          case 'STUDENT':
+          case 'student':
             router.push('/student/dashboard');
             break;
           default:

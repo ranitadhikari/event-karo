@@ -21,7 +21,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
+    <ProtectedRoute allowedRoles={['superadmin']}>
       <div className="flex min-h-screen bg-slate-50/50 overflow-hidden">
         {/* LEFT SIDE: FIXED SIDEBAR */}
         <AdminSidebar 

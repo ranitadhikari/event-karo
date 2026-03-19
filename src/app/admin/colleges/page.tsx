@@ -3,67 +3,50 @@
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AdminTable } from '@/components/admin/AdminTable';
+import { ConfirmationModal } from '@/components/admin/ConfirmationModal';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { College } from '@/types';
-import { GraduationCap, MapPin, Mail, CheckCircle2 } from 'lucide-react';
+import { GraduationCap, MapPin, Mail, CheckCircle2, Trash2 } from 'lucide-react';
 import axios from 'axios';
 
+import { useAuth } from '@/context/AuthContext';
+
 export default function ListedCollegesPage() {
+  const { token } = useAuth();
   const [colleges, setColleges] = useState<College[]>([]);
   const [filteredColleges, setFilteredColleges] = useState<College[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Delete Modal States
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedCollege, setSelectedCollege] = useState<College | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    fetchColleges();
-  }, []);
+    if (token) {
+      fetchColleges();
+    }
+  }, [token]);
 
   const fetchColleges = async () => {
     try {
       setIsLoading(true);
-      // Simulate API call: GET /api/college/all
-      // const response = await axios.get('/api/college/all');
-      // setColleges(response.data);
-      // setFilteredColleges(response.data);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/superadmin/approved`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch');
       
-      // Mock data
-      setTimeout(() => {
-        const mockData: College[] = [
-          {
-            id: 'c1',
-            name: 'IIT Bombay',
-            email: 'admin@iitb.ac.in',
-            city: 'Mumbai',
-            country: 'India',
-            description: 'Indian Institute of Technology Bombay is a premier technical university.',
-            status: 'APPROVED',
-          },
-          {
-            id: 'c2',
-            name: 'Delhi Technological University',
-            email: 'info@dtu.ac.in',
-            city: 'Delhi',
-            country: 'India',
-            description: 'Formerly Delhi College of Engineering, it is a premier technical university.',
-            status: 'APPROVED',
-          },
-          {
-            id: 'c3',
-            name: 'COEP Pune',
-            email: 'registrar@coep.ac.in',
-            city: 'Pune',
-            country: 'India',
-            description: 'College of Engineering Pune is one of the oldest in Asia.',
-            status: 'APPROVED',
-          },
-        ];
-        setColleges(mockData);
-        setFilteredColleges(mockData);
-        setIsLoading(false);
-      }, 800);
-    } catch (error) {
-      toast.error('Failed to load colleges');
+      setColleges(data);
+      setFilteredColleges(data);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to load colleges');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -74,6 +57,49 @@ export default function ListedCollegesPage() {
       college.name.toLowerCase().includes(query.toLowerCase())
     );
     setFilteredColleges(filtered);
+  };
+
+  const openDeleteModal = (college: College) => {
+    setSelectedCollege(college);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setSelectedCollege(null);
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedCollege || !token) return;
+
+    setIsDeleting(true);
+    try {
+      const collegeId = selectedCollege.id || (selectedCollege as any)._id;
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/superadmin/college/${collegeId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to delete college');
+
+      toast.success(data.message || 'College deleted successfully');
+      
+      // Update local state
+      const updatedColleges = colleges.filter(c => (c.id || (c as any)._id) !== collegeId);
+      setColleges(updatedColleges);
+      setFilteredColleges(updatedColleges.filter(c => 
+        c.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ));
+      
+      closeDeleteModal();
+    } catch (error: any) {
+      toast.error(error.message || 'Error deleting college');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const columns = [
@@ -98,6 +124,20 @@ export default function ListedCollegesPage() {
           <CheckCircle2 className="h-3 w-3 mr-1.5" />
           {item.status}
         </Badge>
+      )
+    },
+    {
+      header: 'Actions',
+      accessorKey: 'id',
+      cell: (item: College) => (
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-xl transition-all active:scale-95"
+          onClick={() => openDeleteModal(item)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       )
     }
   ];
@@ -126,6 +166,17 @@ export default function ListedCollegesPage() {
           emptyMessage={searchQuery ? `No colleges found matching "${searchQuery}"` : "No colleges have been approved yet."}
         />
       </div>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDelete}
+        title="Delete College?"
+        description={`Are you sure you want to delete ${selectedCollege?.name}? This will permanently remove the college and all associated data.`}
+        confirmText="Yes, Delete"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </AdminLayout>
   );
 }

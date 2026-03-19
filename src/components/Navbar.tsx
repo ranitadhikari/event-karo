@@ -40,9 +40,9 @@ export const Navbar: React.FC = () => {
   const getDashboardHref = () => {
     if (!user) return '/';
     switch (user.role) {
-      case 'SUPER_ADMIN': return '/admin/dashboard';
-      case 'COLLEGE_ADMIN': return '/college/dashboard';
-      case 'STUDENT': return '/student/dashboard';
+      case 'superadmin': return '/admin/dashboard';
+      case 'collegeadmin': return '/college/dashboard';
+      case 'student': return '/student/dashboard';
       default: return '/';
     }
   };

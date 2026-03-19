@@ -19,7 +19,9 @@ import { toast } from 'sonner';
 import { College } from '@/types';
 import axios from 'axios';
 
-// Mock stats for dashboard (since API not provided)
+import { useAuth } from '@/context/AuthContext';
+
+// Mock stats for dashboard (since specific stats API not provided yet)
 const MOCK_STATS = [
   { label: 'Total Users', value: '1,250', icon: Users, color: 'indigo' as const, trend: { value: 12, isUp: true } },
   { label: 'Total Colleges', value: '45', icon: GraduationCap, color: 'emerald' as const, trend: { value: 8, isUp: true } },
@@ -27,49 +29,34 @@ const MOCK_STATS = [
 ];
 
 export default function AdminDashboardPage() {
+  const { token } = useAuth();
   const [pendingColleges, setPendingColleges] = useState<College[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPending = async () => {
-      try {
-        // Simulating API call: GET /api/superadmin/pending
-        // const response = await axios.get('/api/superadmin/pending');
-        // setPendingColleges(response.data);
-        
-        // Using mock for now to show the UI
-        setTimeout(() => {
-          setPendingColleges([
-            {
-              id: 'c4',
-              name: 'Hansraj College',
-              email: 'admin@hansraj.du.ac.in',
-              city: 'Delhi',
-              country: 'India',
-              description: 'A constituent college of the University of Delhi.',
-              status: 'PENDING',
-            },
-            {
-              id: 'c5',
-              name: 'IIT Bombay',
-              email: 'registrar@iitb.ac.in',
-              city: 'Mumbai',
-              country: 'India',
-              description: 'A premier technical institute in Mumbai.',
-              status: 'PENDING',
-            },
-          ]);
-          setIsLoading(false);
-        }, 800);
-      } catch (error) {
-        console.error('Failed to fetch pending colleges:', error);
-        toast.error('Failed to load pending requests');
-        setIsLoading(false);
-      }
-    };
+    if (token) {
+      fetchPending();
+    }
+  }, [token]);
 
-    fetchPending();
-  }, []);
+  const fetchPending = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/superadmin/pending`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch');
+      setPendingColleges(data);
+    } catch (error: any) {
+      console.error('Failed to fetch pending colleges:', error);
+      toast.error(error.message || 'Failed to load pending requests');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const columns = [
     { header: 'College Name', accessorKey: 'name' },

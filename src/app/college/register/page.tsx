@@ -16,8 +16,6 @@ export default function CollegeRegisterPage() {
     email: '',
     password: '',
     city: '',
-    state: '',
-    country: 'India',
     description: '',
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -32,13 +30,28 @@ export default function CollegeRegisterPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call: POST /api/college/register
-    setTimeout(() => {
-      console.log('Registering college:', formData);
-      setIsLoading(false);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com'}/api/college/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong');
+      }
+
       setIsSubmitted(true);
-      toast.success('Registration request submitted successfully!');
-    }, 2000);
+      toast.success(data.message || 'Registration request submitted successfully!');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to submit registration');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isSubmitted) {
@@ -174,20 +187,7 @@ export default function CollegeRegisterPage() {
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="state" className="text-slate-700 font-semibold">State (Optional)</Label>
-                    <div className="relative group">
-                      <MapPin className="absolute left-3 top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-                      <Input 
-                        id="state" 
-                        name="state"
-                        placeholder="e.g. Delhi" 
-                        className="pl-10 h-12 rounded-xl bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-primary/20 transition-all"
-                        value={formData.state}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-slate-700 font-semibold">Password</Label>

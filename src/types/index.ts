@@ -1,4 +1,4 @@
-export type UserRole = 'SUPER_ADMIN' | 'COLLEGE_ADMIN' | 'STUDENT';
+export type UserRole = 'superadmin' | 'collegeadmin' | 'student';
 
 export interface User {
   id: string;
@@ -23,7 +23,7 @@ export interface College {
   state?: string;
   country: string;
   description: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: 'pending' | 'approved' | 'rejected';
   website?: string;
   address?: string;
   phone?: string;

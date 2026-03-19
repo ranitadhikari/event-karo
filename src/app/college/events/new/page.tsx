@@ -57,7 +57,7 @@ export default function CreateEvent() {
   };
 
   return (
-    <DashboardLayout allowedRoles={['COLLEGE_ADMIN']}>
+    <DashboardLayout allowedRoles={['collegeadmin']}>
       <div className="space-y-8">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-xl hover:bg-white hover:shadow-sm transition-all border border-transparent hover:border-slate-100">

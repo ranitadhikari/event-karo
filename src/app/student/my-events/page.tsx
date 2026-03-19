@@ -63,7 +63,7 @@ export default function MyRegisteredEvents() {
   const [registrations, setRegistrations] = useState<Registration[]>(MOCK_REGISTERED_EVENTS);
 
   return (
-    <DashboardLayout allowedRoles={['STUDENT']}>
+    <DashboardLayout allowedRoles={['student']}>
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">

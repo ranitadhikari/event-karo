@@ -30,20 +30,20 @@ export const Sidebar: React.FC = () => {
     if (!user) return [];
     
     switch (user.role) {
-      case 'SUPER_ADMIN':
+      case 'superadmin':
         return [
           { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
           { label: 'Colleges', href: '/admin/colleges', icon: GraduationCap },
           { label: 'Settings', href: '/admin/settings', icon: Settings },
         ];
-      case 'COLLEGE_ADMIN':
+      case 'collegeadmin':
         return [
           { label: 'Dashboard', href: '/college/dashboard', icon: LayoutDashboard },
           { label: 'Events', href: '/college/events', icon: Calendar },
           { label: 'Create Event', href: '/college/events/new', icon: PlusCircle },
           { label: 'Settings', href: '/college/settings', icon: Settings },
         ];
-      case 'STUDENT':
+      case 'student':
         return [
           { label: 'Browse Events', href: '/events', icon: Calendar },
           { label: 'My Registered Events', href: '/student/my-events', icon: LayoutDashboard },
