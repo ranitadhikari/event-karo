@@ -36,6 +36,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { formatDate } from '@/utils/formatDate';
+import { getEventEnquiries, Enquiry } from '@/lib/api';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com';
 
@@ -79,6 +80,12 @@ export default function ListedEvents() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<BackendEvent | null>(null);
   const [posterIndex, setPosterIndex] = useState(0);
+  
+  // Enquiries modal state
+  const [enquiriesEvent, setEnquiriesEvent] = useState<{ id: string, title: string } | null>(null);
+  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
+  const [isLoadingEnquiries, setIsLoadingEnquiries] = useState(false);
+
   const { token } = useAuth();
 
   useEffect(() => { fetchEvents(); }, []);
@@ -141,6 +148,22 @@ export default function ListedEvents() {
     const raw = rawEvents.find(ev => ev._id === id) || null;
     setPosterIndex(0);
     setSelectedEvent(raw);
+  };
+
+  const handleViewEnquiries = async (id: string) => {
+    const event = rawEvents.find(ev => ev._id === id);
+    if (!event || !token) return;
+
+    setEnquiriesEvent({ id, title: event.title });
+    setIsLoadingEnquiries(true);
+    try {
+      const response = await getEventEnquiries(id, token);
+      setEnquiries(response.enquiries);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to load enquiries');
+    } finally {
+      setIsLoadingEnquiries(false);
+    }
   };
 
   const filteredEvents = events.filter(event => {
@@ -224,6 +247,7 @@ export default function ListedEvents() {
                         onDelete={handleDelete}
                         onEdit={id => window.location.href = `/college/events/${id}/edit`}
                         onViewDetails={handleViewDetails}
+                        onViewEnquiries={handleViewEnquiries}
                       />
                     </motion.div>
                   ))}
@@ -258,6 +282,7 @@ export default function ListedEvents() {
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
                               <Button variant="ghost" size="sm" onClick={() => handleViewDetails(event.id)} className="text-blue-600 font-bold text-xs">Details</Button>
+                              <Button variant="ghost" size="sm" onClick={() => handleViewEnquiries(event.id)} className="text-emerald-600 font-bold text-xs">Enquiries</Button>
                               <Link href={`/college/events/${event.id}/edit`}>
                                 <Button variant="ghost" size="sm" className="text-blue-600 font-bold text-xs"><Edit3 className="h-4 w-4 mr-1" /> Edit</Button>
                               </Link>
@@ -449,6 +474,99 @@ export default function ListedEvents() {
                     <Trash2 className="h-4 w-4 mr-2" /> Delete
                   </Button>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Enquiries Modal ── */}
+      <AnimatePresence>
+        {enquiriesEvent && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setEnquiriesEvent(null)}
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              className="relative bg-white rounded-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden shadow-2xl flex flex-col"
+            >
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-black text-gray-900 tracking-tight">Event Enquiries</h2>
+                  <p className="text-sm text-gray-500 font-medium">{enquiriesEvent.title}</p>
+                </div>
+                <button
+                  onClick={() => setEnquiriesEvent(null)}
+                  className="h-9 w-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-all"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6">
+                {isLoadingEnquiries ? (
+                  <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                    <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+                    <p className="text-gray-500 font-bold animate-pulse uppercase tracking-widest text-xs">Fetching interested students...</p>
+                  </div>
+                ) : enquiries.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {enquiries.map((enq) => (
+                      <div key={enq._id} className="bg-gray-50 border border-gray-100 rounded-xl p-5 hover:border-blue-200 hover:bg-blue-50/30 transition-all group">
+                        <div className="flex justify-between items-start mb-3">
+                          <h4 className="font-black text-gray-900 uppercase tracking-tight">{enq.name}</h4>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase">{formatDate(enq.createdAt)}</span>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
+                            <span className="h-7 w-7 rounded-lg bg-white border border-gray-100 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                              <Tag className="h-3.5 w-3.5" />
+                            </span>
+                            {enq.email}
+                          </div>
+                          {enq.phone && (
+                            <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
+                              <span className="h-7 w-7 rounded-lg bg-white border border-gray-100 flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-white transition-colors">
+                                <Users className="h-3.5 w-3.5" />
+                              </span>
+                              {enq.phone}
+                            </div>
+                          )}
+                          {enq.message && (
+                            <div className="mt-4 p-3 bg-white border border-gray-100 rounded-lg text-xs italic text-gray-500 leading-relaxed">
+                              "{enq.message}"
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
+                    <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center">
+                      <Users className="h-10 w-10 text-gray-300" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">No enquiries yet</h3>
+                      <p className="text-gray-500 font-medium max-w-xs mt-1">When students enquire about this event, they will appear here.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setEnquiriesEvent(null)} className="h-11 px-8 rounded-xl font-bold text-xs uppercase tracking-wider">Close</Button>
+                <Link href="/college/newsletter">
+                  <Button className="h-11 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-blue-500/20">
+                    Send Newsletter
+                  </Button>
+                </Link>
               </div>
             </motion.div>
           </motion.div>

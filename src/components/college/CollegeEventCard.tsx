@@ -22,13 +22,15 @@ interface CollegeEventCardProps {
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onViewDetails?: (id: string) => void;
+  onViewEnquiries?: (id: string) => void;
 }
 
 export const CollegeEventCard: React.FC<CollegeEventCardProps> = ({ 
-  event, 
+  event,
   onEdit, 
   onDelete, 
-  onViewDetails 
+  onViewDetails,
+  onViewEnquiries
 }) => {
   const posterUrl = event.poster || `https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800`;
   const isFeatured = event.isFeatured;
@@ -111,7 +113,15 @@ export const CollegeEventCard: React.FC<CollegeEventCardProps> = ({
               <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
             </Button>
             
-            <div className="flex items-center gap-2">
+              <Button 
+                onClick={() => onViewEnquiries?.(event.id)}
+                size="icon" 
+                variant="outline" 
+                title="View Enquiries"
+                className="h-9 w-9 rounded-md border-gray-200 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-100 transition-all duration-300"
+              >
+                <Users className="h-4 w-4" />
+              </Button>
               <Button 
                 onClick={() => onEdit?.(event.id)}
                 size="icon" 
@@ -128,7 +138,6 @@ export const CollegeEventCard: React.FC<CollegeEventCardProps> = ({
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
-            </div>
           </div>
         </div>
       </Card>

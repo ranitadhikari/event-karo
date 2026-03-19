@@ -28,15 +28,30 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
+import { getMyEvents, sendNewsletter, PublicEvent } from '@/lib/api';
+import { useEffect } from 'react';
 
 export default function NewsletterPage() {
+  const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingEvents, setIsFetchingEvents] = useState(true);
   const [activeTab, setActiveTab] = useState<'create' | 'history'>('create');
+  const [myEvents, setMyEvents] = useState<PublicEvent[]>([]);
   const [formData, setFormData] = useState({
     subject: '',
     content: '',
-    recipientGroup: 'all'
+    recipientGroup: ''
   });
+
+  useEffect(() => {
+    if (token) {
+      getMyEvents(token)
+        .then(setMyEvents)
+        .catch(err => toast.error(err.message || 'Failed to fetch events'))
+        .finally(() => setIsFetchingEvents(false));
+    }
+  }, [token]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -49,22 +64,32 @@ export default function NewsletterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!formData.recipientGroup) {
+      toast.error('Please select an event group');
+      return;
+    }
+    if (!token) return;
 
-    // Simulate API: POST /api/newsletter/send
-    setTimeout(() => {
-      console.log('Sending newsletter:', formData);
-      setIsLoading(false);
-      toast.success('Newsletter sent successfully!', {
-        description: `Email blast sent to ${formData.recipientGroup === 'all' ? 'all registered users' : 'specific event participants'}.`,
+    setIsLoading(true);
+    try {
+      const response = await sendNewsletter(
+        formData.recipientGroup,
+        { subject: formData.subject, message: formData.content },
+        token
+      );
+      toast.success(response.message || 'Newsletter sent successfully!', {
         icon: <CheckCircle2 className="h-5 w-5 text-emerald-500" />
       });
       setFormData({
         subject: '',
         content: '',
-        recipientGroup: 'all'
+        recipientGroup: ''
       });
-    }, 2500);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send newsletter');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const mockHistory = [
@@ -147,13 +172,17 @@ export default function NewsletterPage() {
                         <Label htmlFor="recipientGroup" className="text-sm font-bold text-gray-700">Recipient Group</Label>
                         <Select onValueChange={handleRecipientChange} value={formData.recipientGroup}>
                           <SelectTrigger className="h-10 rounded-lg">
-                            <SelectValue placeholder="Select recipients" />
+                            <SelectValue placeholder={isFetchingEvents ? "Loading events..." : "Select event group"} />
                           </SelectTrigger>
                           <SelectContent className="rounded-lg">
-                            <SelectItem value="all">All Registered Students</SelectItem>
-                            <SelectItem value="hackathon">Hackathon Participants</SelectItem>
-                            <SelectItem value="tech-symposium">Tech Symposium Participants</SelectItem>
-                            <SelectItem value="workshop">AI Workshop Participants</SelectItem>
+                            {myEvents.map(event => (
+                              <SelectItem key={event._id} value={event._id}>
+                                {event.title} Enquirers
+                              </SelectItem>
+                            ))}
+                            {myEvents.length === 0 && !isFetchingEvents && (
+                              <SelectItem value="none" disabled>No events found</SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
                       </div>

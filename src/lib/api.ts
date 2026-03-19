@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com';
+export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://eventkaro-backened.onrender.com';
 
 // ── Types ────────────────────────────────────────────
 
@@ -104,6 +104,7 @@ export async function getEventEnquiries(eventId: string, token: string): Promise
   return res.json();
 }
 
+
 /** Fetch all events for superadmin (requires auth token) */
 export async function getSuperAdminEvents(token: string): Promise<PublicEvent[]> {
   const res = await fetch(`${BASE_URL}/api/event/admin/all`, {
@@ -111,5 +112,38 @@ export async function getSuperAdminEvents(token: string): Promise<PublicEvent[]>
     cache: 'no-store',
   });
   if (!res.ok) throw new Error('Failed to fetch events');
+  return res.json();
+}
+
+/** Send newsletter to all students who enquired for an event */
+export async function sendNewsletter(
+  eventId: string, 
+  data: { subject: string; message: string }, 
+  token: string
+): Promise<{ message: string }> {
+  const res = await fetch(`${BASE_URL}/api/event-registration/event/${eventId}/newsletter`, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}` 
+    },
+    body: JSON.stringify(data),
+  });
+  
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Failed to send newsletter');
+  }
+  
+  return res.json();
+}
+
+/** Fetch events belonging to the logged-in college admin */
+export async function getMyEvents(token: string): Promise<PublicEvent[]> {
+  const res = await fetch(`${BASE_URL}/api/event/my`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error('Failed to fetch your events');
   return res.json();
 }
